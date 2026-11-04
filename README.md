@@ -2,13 +2,13 @@
 
 Native Kotlin Android app providing three independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 3.3 status
+## Run 3.4 status
 
-Run 3.3 implements compact Month and Upcoming widgets on the shared calendar pipeline:
+Run 3.4 implements all three widgets on the shared calendar pipeline:
 
 - 2×2 Month Calendar widget
 - 2×2 Upcoming Events widget
-- 4×6 Combined widget placeholder
+- 4×6 Combined Month + Upcoming widget
 - Calendar permission settings screen
 - Material You dynamic colors with fallback colors
 - Calendar discovery across provider/account types
@@ -34,8 +34,12 @@ Run 3.3 implements compact Month and Upcoming widgets on the shared calendar pip
 - Ongoing, all-day, tomorrow, and later-date labels
 - Accurate overflow counts and calendar-color accent bars
 - Safe untitled-event and empty/error states
+- Vertically stacked complete month and upcoming-events sections
+- Deterministic combined sizing that prioritizes the complete month grid
+- Shared RemoteViews month and agenda section renderers
+- Safe calendar-opening fallback from the combined month heading
 
-Month and Upcoming render real calendar data. Combined remains a diagnostic placeholder. No fabricated events are shown.
+Month, Upcoming, and Combined render real calendar data. No fabricated events are shown.
 
 ## Requirements
 
@@ -103,18 +107,19 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `MonthWidgetRenderingEngine` renders the compact month using RemoteViews only.
 - `AgendaWidgetRenderingEngine` renders responsive upcoming-event rows.
 - `AgendaEventFormatter` and `AgendaCapacityPolicy` keep formatting and sizing deterministic.
+- `CombinedWidgetRenderingEngine` stacks both reusable sections from one immutable snapshot.
+- `CombinedLayoutPolicy` reserves the complete month before allocating agenda rows.
 
-## Run 3.3 limitations
+## Run 3.4 limitations
 
-- Combined widget still uses diagnostic text
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI
 - No periodic refresh scheduling
+- Event-specific and date-specific navigation remain prepared for Run 5
 
 ## Recommended next steps
 
-1. Apply final combined-widget layout.
-2. Add full Nothing Dynamic/Translucent styling.
-3. Add event-specific navigation.
-4. Add calendar-selection settings UI.
-5. Add refresh triggers for calendar changes, time, locale, and timezone.
+1. Add full Nothing Dynamic/Translucent styling.
+2. Add event-specific navigation.
+3. Add calendar-selection settings UI.
+4. Add refresh triggers for calendar changes, time, locale, and timezone.

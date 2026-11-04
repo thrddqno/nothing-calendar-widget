@@ -8,12 +8,11 @@
     <string name="permission_explanation">Calendar access lets widgets read events stored by Android calendar providers.</string>
     <string name="grant_calendar_permission">Grant calendar access</string>
     <string name="open_app_settings">Open app settings</string>
-    <string name="run_one_note">Run 3.3 completes Month and Upcoming widgets. Combined remains diagnostic.</string>
+    <string name="run_one_note">Run 3.4 completes Month, Upcoming, and Combined widgets.</string>
     <string name="widget_loading">Loading calendar…</string>
     <string name="widget_permission_required">Permission required</string>
     <string name="widget_no_calendars">No available calendars</string>
     <string name="widget_provider_failure">Calendar unavailable</string>
-    <string name="widget_calendar_loaded">Calendar loaded</string>
     <string name="widget_loading_compact">Loading events…</string>
     <string name="widget_events_unavailable">Events unavailable</string>
     <string name="widget_agenda_header">UP NEXT</string>
@@ -23,11 +22,8 @@
     <string name="widget_now">NOW</string>
     <string name="widget_untitled_event">Untitled event</string>
     <string name="widget_more_events">+%1$d MORE</string>
-    <plurals name="widget_upcoming_event_count">
-        <item quantity="one">%d upcoming event</item>
-        <item quantity="other">%d upcoming events</item>
-    </plurals>
-
+    <string name="widget_combined_agenda_header">UPCOMING EVENTS</string>
+    <string name="widget_no_calendars_available">No calendars available</string>
     <string name="widget_month_name">Nothing Calendar — Month</string>
     <string name="widget_month_description">Compact 2×2 month calendar</string>
     <string name="widget_month_placeholder_title">Month Calendar</string>

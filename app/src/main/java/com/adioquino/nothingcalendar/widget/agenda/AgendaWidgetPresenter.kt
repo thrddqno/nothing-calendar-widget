@@ -10,6 +10,39 @@ class AgendaWidgetPresenter(
         occurrences: List<WidgetAgendaOccurrence>,
         now: Instant,
         availableHeightDp: Int,
+    ): AgendaRenderModel = present(
+        occurrences = occurrences,
+        now = now,
+        capacityResolver = { eligibleCount ->
+            AgendaCapacityPolicy.calculate(availableHeightDp, eligibleCount)
+        },
+    )
+
+    fun presentWithinHeight(
+        occurrences: List<WidgetAgendaOccurrence>,
+        now: Instant,
+        availableContentHeightDp: Int,
+        rowHeightDp: Int = AgendaCapacityPolicy.EVENT_ROW_HEIGHT_DP,
+        overflowHeightDp: Int = AgendaCapacityPolicy.OVERFLOW_HEIGHT_DP,
+        maxEventRows: Int = AgendaCapacityPolicy.MAX_EVENT_ROWS,
+    ): AgendaRenderModel = present(
+        occurrences = occurrences,
+        now = now,
+        capacityResolver = { eligibleCount ->
+            AgendaCapacityPolicy.calculateWithinHeight(
+                availableContentHeightDp = availableContentHeightDp,
+                eligibleEventCount = eligibleCount,
+                rowHeightDp = rowHeightDp,
+                overflowHeightDp = overflowHeightDp,
+                maxEventRows = maxEventRows,
+            )
+        },
+    )
+
+    private fun present(
+        occurrences: List<WidgetAgendaOccurrence>,
+        now: Instant,
+        capacityResolver: (Int) -> AgendaCapacity,
     ): AgendaRenderModel {
         val eligible = occurrences
             .asSequence()
@@ -21,7 +54,7 @@ class AgendaWidgetPresenter(
                     .thenBy(WidgetAgendaOccurrence::eventId),
             )
             .toList()
-        val capacity = AgendaCapacityPolicy.calculate(availableHeightDp, eligible.size)
+        val capacity = capacityResolver(eligible.size)
         val rows = eligible.take(capacity.visibleEventRows).map { occurrence ->
             val formatted = formatter.format(occurrence, now)
             AgendaRowModel(

@@ -118,6 +118,8 @@ class WidgetDataLoaderTest {
             1,
             result.snapshot.month.cells.single { it.date.toString() == "2026-05-10" }.indicators.count,
         )
+        assertEquals(1, repository.calendarCalls)
+        assertEquals(2, repository.eventCalls)
         assertEquals(listOf(setOf(1L), setOf(1L)), repository.queriedCalendarIds)
     }
 
