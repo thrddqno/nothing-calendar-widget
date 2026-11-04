@@ -5,6 +5,7 @@ import com.adioquino.nothingcalendar.calendar.domain.CalendarQueryRange
 import com.adioquino.nothingcalendar.calendar.domain.DeviceCalendar
 import com.adioquino.nothingcalendar.settings.SettingsRepository
 import java.time.Clock
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -160,6 +161,7 @@ class AndroidCalendarRepositoryTest {
 
         override val useDynamicColors: Flow<Boolean> = dynamicColors
         override val selectedCalendarIds: Flow<Set<Long>?> = selection
+        override val firstDayOfWeek: Flow<DayOfWeek> = MutableStateFlow(DayOfWeek.MONDAY)
 
         override suspend fun setUseDynamicColors(enabled: Boolean) {
             dynamicColors.value = enabled
@@ -172,5 +174,7 @@ class AndroidCalendarRepositoryTest {
         override suspend fun useDefaultCalendarSelection() {
             selection.value = null
         }
+
+        override suspend fun setFirstDayOfWeek(firstDayOfWeek: DayOfWeek) = Unit
     }
 }

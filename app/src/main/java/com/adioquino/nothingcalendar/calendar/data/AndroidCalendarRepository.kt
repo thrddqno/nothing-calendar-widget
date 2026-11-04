@@ -34,6 +34,15 @@ class AndroidCalendarRepository(
         querySelectedEvents(range).mapSuccess(CalendarEventProcessor::chronological)
     }
 
+    override suspend fun events(
+        range: CalendarQueryRange,
+        calendarIds: Set<Long>,
+    ): CalendarReadResult<List<CalendarEvent>> = withContext(ioDispatcher) {
+        dataSource.queryInstances(range, calendarIds)
+            .toReadResult()
+            .mapSuccess(CalendarEventProcessor::chronological)
+    }
+
     override suspend fun upcomingEvents(
         limit: Int,
         lookahead: Duration,

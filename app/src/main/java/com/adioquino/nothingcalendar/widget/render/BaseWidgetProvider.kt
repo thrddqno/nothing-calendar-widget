@@ -12,9 +12,17 @@ abstract class BaseWidgetProvider(
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
-        val renderer = PlaceholderWidgetRenderingEngine(context)
-        appWidgetIds.forEach { appWidgetId ->
-            renderer.render(appWidgetManager, appWidgetId, kind)
-        }
+        WidgetUpdateCoordinator.update(
+            context = context,
+            appWidgetManager = appWidgetManager,
+            appWidgetIds = appWidgetIds,
+            kind = kind,
+            pendingResult = goAsync(),
+        )
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        WidgetUpdateCoordinator.invalidate(appWidgetIds)
+        super.onDeleted(context, appWidgetIds)
     }
 }

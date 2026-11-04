@@ -13,6 +13,11 @@ interface CalendarRepository {
 
     suspend fun events(range: CalendarQueryRange): CalendarReadResult<List<CalendarEvent>>
 
+    suspend fun events(
+        range: CalendarQueryRange,
+        calendarIds: Set<Long>,
+    ): CalendarReadResult<List<CalendarEvent>>
+
     suspend fun upcomingEvents(
         limit: Int,
         lookahead: Duration = Duration.ofDays(90),

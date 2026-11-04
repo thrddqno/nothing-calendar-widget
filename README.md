@@ -2,9 +2,9 @@
 
 Native Kotlin Android app providing three independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 2 status
+## Run 3.1 status
 
-Run 2 adds read-only Android calendar integration:
+Run 3.1 connects read-only Android calendar integration to all widget providers:
 
 - 2×2 Month Calendar widget placeholder
 - 2×2 Upcoming Events widget placeholder
@@ -18,8 +18,13 @@ Run 2 adds read-only Android calendar integration:
 - Per-date month indicator counts and calendar colors
 - Persistent DataStore calendar selection
 - Explicit permission-denied and provider-failure results
+- Shared immutable month and agenda presentation models
+- Monday/Sunday 42-cell visible month grid calculation
+- Device-zone date boundaries and deterministic clock support
+- Asynchronous widget loading with stale-update and deletion guards
+- Diagnostic RemoteViews output from real load states
 
-Widget views remain Run 1 placeholders. Run 2 builds and tests data layer only; no fake events are shown.
+Widget views remain diagnostic placeholders. They report real month, event count, permission, empty, and provider states without showing fabricated events.
 
 ## Requirements
 
@@ -81,19 +86,22 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `CalendarEventProcessor` handles deterministic sorting, deduplication, date spans, and month grouping.
 - `CalendarSelectionResolver` distinguishes default selection from an explicit empty selection.
 - `CalendarDataModule.repository(context)` constructs the production repository.
+- `WidgetDataLoader` builds one shared snapshot from repository and DataStore state.
+- `WidgetSnapshotFactory` performs pure month-grid and agenda transformations.
+- `WidgetUpdateCoordinator` runs provider loads asynchronously and rejects stale/deleted widget updates.
 
-## Run 2 limitations
+## Run 3.1 limitations
 
 - No real month grid
-- No event data rendered in widgets yet
+- No agenda event rows
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI
 - No periodic refresh scheduling
 
 ## Recommended next steps
 
-1. Bind repository results to RemoteViews renderers.
-2. Build locale-aware month grid renderer.
-3. Render upcoming all-day and timed events.
+1. Build final locale-aware month grid RemoteViews.
+2. Render upcoming all-day and timed event rows.
+3. Apply final combined-widget layout.
 4. Add calendar-selection settings UI.
 5. Add refresh triggers for calendar changes, time, locale, and timezone.

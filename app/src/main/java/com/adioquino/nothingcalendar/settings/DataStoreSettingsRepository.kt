@@ -4,7 +4,11 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import java.time.DayOfWeek
+import java.time.temporal.WeekFields
+import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -19,6 +23,13 @@ class DataStoreSettingsRepository(context: Context) : SettingsRepository {
 
     override val selectedCalendarIds: Flow<Set<Long>?> = dataStore.data.map { preferences ->
         preferences[SELECTED_CALENDAR_IDS]?.mapNotNull(String::toLongOrNull)?.toSet()
+    }
+
+    override val firstDayOfWeek: Flow<DayOfWeek> = dataStore.data.map { preferences ->
+        preferences[FIRST_DAY_OF_WEEK]
+            ?.let { storedValue -> runCatching { DayOfWeek.valueOf(storedValue) }.getOrNull() }
+            ?.takeIf { it == DayOfWeek.MONDAY || it == DayOfWeek.SUNDAY }
+            ?: localeFirstDayOfWeek()
     }
 
     override suspend fun setUseDynamicColors(enabled: Boolean) {
@@ -39,8 +50,25 @@ class DataStoreSettingsRepository(context: Context) : SettingsRepository {
         }
     }
 
+    override suspend fun setFirstDayOfWeek(firstDayOfWeek: DayOfWeek) {
+        require(firstDayOfWeek == DayOfWeek.MONDAY || firstDayOfWeek == DayOfWeek.SUNDAY) {
+            "First day of week must be Monday or Sunday"
+        }
+        dataStore.edit { preferences ->
+            preferences[FIRST_DAY_OF_WEEK] = firstDayOfWeek.name
+        }
+    }
+
+    private fun localeFirstDayOfWeek(): DayOfWeek = when (
+        WeekFields.of(Locale.getDefault()).firstDayOfWeek
+    ) {
+        DayOfWeek.SUNDAY -> DayOfWeek.SUNDAY
+        else -> DayOfWeek.MONDAY
+    }
+
     private companion object {
         val USE_DYNAMIC_COLORS = booleanPreferencesKey("use_dynamic_colors")
         val SELECTED_CALENDAR_IDS = stringSetPreferencesKey("selected_calendar_ids")
+        val FIRST_DAY_OF_WEEK = stringPreferencesKey("first_day_of_week")
     }
 }

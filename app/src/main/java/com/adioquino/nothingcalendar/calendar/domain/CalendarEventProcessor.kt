@@ -62,6 +62,34 @@ object CalendarEventProcessor {
         )
     }
 
+    fun dateIndicators(
+        events: List<CalendarEvent>,
+        firstDate: LocalDate,
+        endDateExclusive: LocalDate,
+        zoneId: ZoneId,
+    ): Map<LocalDate, DayIndicators> {
+        require(endDateExclusive.isAfter(firstDate)) { "Date range end must follow start" }
+        val mutableDays = mutableMapOf<LocalDate, MutableDayIndicators>()
+        val lastDate = endDateExclusive.minusDays(1)
+        chronological(events).forEach { event ->
+            val (eventStart, eventEnd) = event.touchedDateBounds(zoneId)
+            val firstTouchedDate = maxOf(eventStart, firstDate)
+            val lastTouchedDate = minOf(eventEnd, lastDate)
+            if (firstTouchedDate.isAfter(lastTouchedDate)) return@forEach
+
+            generateSequence(firstTouchedDate) { date ->
+                date.plusDays(1).takeIf { !it.isAfter(lastTouchedDate) }
+            }.forEach { date ->
+                val indicators = mutableDays.getOrPut(date, ::MutableDayIndicators)
+                indicators.count += 1
+                event.calendarColor?.let(indicators.calendarColors::add)
+            }
+        }
+        return mutableDays.toSortedMap().mapValues { (_, value) ->
+            DayIndicators(value.count, value.calendarColors.toSet())
+        }
+    }
+
     fun CalendarEvent.touchedDates(zoneId: ZoneId): List<LocalDate> {
         val (startDate, endDateInclusive) = touchedDateBounds(zoneId)
         return generateSequence(startDate) { date ->
