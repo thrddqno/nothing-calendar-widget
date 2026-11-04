@@ -35,7 +35,8 @@ object WidgetUpdateCoordinator {
         val appContext = context.applicationContext
         val renderer: WidgetRenderingEngine = when (kind) {
             WidgetKind.MONTH -> MonthWidgetRenderingEngine(appContext)
-            WidgetKind.AGENDA, WidgetKind.COMBINED -> PlaceholderWidgetRenderingEngine(appContext)
+            WidgetKind.AGENDA -> AgendaWidgetRenderingEngine(appContext)
+            WidgetKind.COMBINED -> PlaceholderWidgetRenderingEngine(appContext)
         }
         if (appWidgetIds.isEmpty()) {
             pendingResult.finish()

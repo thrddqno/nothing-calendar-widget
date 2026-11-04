@@ -2,12 +2,12 @@
 
 Native Kotlin Android app providing three independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 3.2 status
+## Run 3.3 status
 
-Run 3.2 implements the compact Month widget on top of the shared calendar pipeline:
+Run 3.3 implements compact Month and Upcoming widgets on the shared calendar pipeline:
 
 - 2×2 Month Calendar widget
-- 2×2 Upcoming Events widget placeholder
+- 2×2 Upcoming Events widget
 - 4×6 Combined widget placeholder
 - Calendar permission settings screen
 - Material You dynamic colors with fallback colors
@@ -29,8 +29,13 @@ Run 3.2 implements the compact Month widget on top of the shared calendar pipeli
 - Compact today highlight and neutral per-date event markers
 - Width-aware abbreviated/full month heading
 - Calendar remains usable when permission or provider data is unavailable
+- Responsive one-to-four-row upcoming-event capacity
+- Locale/device-zone 12-hour or 24-hour event labels
+- Ongoing, all-day, tomorrow, and later-date labels
+- Accurate overflow counts and calendar-color accent bars
+- Safe untitled-event and empty/error states
 
-Month now renders real dates and event-presence markers. Upcoming and Combined remain diagnostic placeholders. No fabricated events are shown.
+Month and Upcoming render real calendar data. Combined remains a diagnostic placeholder. No fabricated events are shown.
 
 ## Requirements
 
@@ -96,10 +101,11 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `WidgetSnapshotFactory` performs pure month-grid and agenda transformations.
 - `WidgetUpdateCoordinator` runs provider loads asynchronously and rejects stale/deleted widget updates.
 - `MonthWidgetRenderingEngine` renders the compact month using RemoteViews only.
+- `AgendaWidgetRenderingEngine` renders responsive upcoming-event rows.
+- `AgendaEventFormatter` and `AgendaCapacityPolicy` keep formatting and sizing deterministic.
 
-## Run 3.2 limitations
+## Run 3.3 limitations
 
-- No agenda event rows
 - Combined widget still uses diagnostic text
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI
@@ -107,8 +113,8 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 
 ## Recommended next steps
 
-1. Render upcoming all-day and timed event rows.
-2. Apply final combined-widget layout.
-3. Add full Nothing Dynamic/Translucent styling.
+1. Apply final combined-widget layout.
+2. Add full Nothing Dynamic/Translucent styling.
+3. Add event-specific navigation.
 4. Add calendar-selection settings UI.
 5. Add refresh triggers for calendar changes, time, locale, and timezone.
