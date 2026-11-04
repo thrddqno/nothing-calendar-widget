@@ -9,10 +9,13 @@ import com.adioquino.nothingcalendar.calendar.domain.CalendarQueryRange
 import com.adioquino.nothingcalendar.calendar.domain.CalendarSelectionResolver
 import com.adioquino.nothingcalendar.settings.SettingsRepository
 import java.time.Clock
+import java.time.DayOfWeek
 import java.time.Duration
-import java.time.LocalDate
+import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.temporal.WeekFields
+import java.util.Locale
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -39,31 +42,45 @@ class WidgetDataLoader(
     }
 
     suspend fun load(): WidgetLoadState = withContext(ioDispatcher) {
-        if (!permissionChecker.canReadCalendar()) return@withContext WidgetLoadState.PermissionDenied
+        val now = clock.instant()
+        val fallbackSnapshot = WidgetSnapshotFactory.empty(now, zoneId, localeFirstDayOfWeek())
+        val hasPermission = permissionChecker.canReadCalendar()
 
         try {
-            loadSnapshot()
+            val (persistedSelection, firstDayOfWeek) = combine(
+                settingsRepository.selectedCalendarIds,
+                settingsRepository.firstDayOfWeek,
+            ) { selectedIds, firstDay -> selectedIds to firstDay }.first()
+            val emptySnapshot = WidgetSnapshotFactory.empty(now, zoneId, firstDayOfWeek)
+            if (!hasPermission) return@withContext WidgetLoadState.PermissionDenied(emptySnapshot)
+            loadSnapshot(now, persistedSelection, firstDayOfWeek, emptySnapshot)
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (_: Exception) {
-            WidgetLoadState.ProviderFailure(CalendarReadFailure.PROVIDER_UNAVAILABLE)
+            if (!hasPermission) return@withContext WidgetLoadState.PermissionDenied(fallbackSnapshot)
+            WidgetLoadState.ProviderFailure(
+                CalendarReadFailure.PROVIDER_UNAVAILABLE,
+                fallbackSnapshot,
+            )
         }
     }
 
-    private suspend fun loadSnapshot(): WidgetLoadState {
+    private suspend fun loadSnapshot(
+        now: Instant,
+        persistedSelection: Set<Long>?,
+        firstDayOfWeek: DayOfWeek,
+        emptySnapshot: WidgetSnapshot,
+    ): WidgetLoadState {
         val calendars = when (val result = calendarRepository.calendars()) {
             is CalendarReadResult.Success -> result.value
-            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied
-            is CalendarReadResult.Failure -> return WidgetLoadState.ProviderFailure(result.reason)
+            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied(emptySnapshot)
+            is CalendarReadResult.Failure -> {
+                return WidgetLoadState.ProviderFailure(result.reason, emptySnapshot)
+            }
         }
-        val (persistedSelection, firstDayOfWeek) = combine(
-            settingsRepository.selectedCalendarIds,
-            settingsRepository.firstDayOfWeek,
-        ) { selectedIds, firstDay -> selectedIds to firstDay }.first()
         val selectedIds = CalendarSelectionResolver.resolve(calendars, persistedSelection)
-        if (selectedIds.isEmpty()) return WidgetLoadState.NoAvailableCalendars
+        if (selectedIds.isEmpty()) return WidgetLoadState.NoAvailableCalendars(emptySnapshot)
 
-        val now = clock.instant()
         val today = now.atZone(zoneId).toLocalDate()
         val month = YearMonth.from(today)
         val visibleRange = WidgetSnapshotFactory.visibleDateRange(month, firstDayOfWeek)
@@ -73,8 +90,10 @@ class WidgetDataLoader(
         )
         val monthEvents = when (val result = calendarRepository.events(eventRange, selectedIds)) {
             is CalendarReadResult.Success -> result.value
-            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied
-            is CalendarReadResult.Failure -> return WidgetLoadState.ProviderFailure(result.reason)
+            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied(emptySnapshot)
+            is CalendarReadResult.Failure -> {
+                return WidgetLoadState.ProviderFailure(result.reason, emptySnapshot)
+            }
         }
         val agendaEnd = now.plus(agendaLookahead)
         val agendaRange = CalendarQueryRange(now, agendaEnd)
@@ -85,8 +104,10 @@ class WidgetDataLoader(
                 rangeEndEpochMillis = agendaEnd.toEpochMilli(),
                 limit = Int.MAX_VALUE,
             )
-            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied
-            is CalendarReadResult.Failure -> return WidgetLoadState.ProviderFailure(result.reason)
+            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied(emptySnapshot)
+            is CalendarReadResult.Failure -> {
+                return WidgetLoadState.ProviderFailure(result.reason, emptySnapshot)
+            }
         }
         val indicators = CalendarEventProcessor.dateIndicators(
             events = monthEvents,
@@ -107,5 +128,12 @@ class WidgetDataLoader(
         } else {
             WidgetLoadState.Ready(snapshot)
         }
+    }
+
+    private fun localeFirstDayOfWeek(): DayOfWeek = when (
+        WeekFields.of(Locale.getDefault()).firstDayOfWeek
+    ) {
+        DayOfWeek.SUNDAY -> DayOfWeek.SUNDAY
+        else -> DayOfWeek.MONDAY
     }
 }

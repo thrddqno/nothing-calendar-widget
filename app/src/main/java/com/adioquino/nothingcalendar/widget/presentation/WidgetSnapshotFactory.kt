@@ -7,9 +7,12 @@ import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 
 object WidgetSnapshotFactory {
-    const val MONTH_CELL_COUNT = 42
+    const val COLUMN_COUNT = 7
+    const val MIN_WEEK_COUNT = 4
+    const val MAX_WEEK_COUNT = 6
 
     fun visibleDateRange(
         month: YearMonth,
@@ -19,12 +22,31 @@ object WidgetSnapshotFactory {
         val firstOfMonth = month.atDay(1)
         val leadingDays = Math.floorMod(
             firstOfMonth.dayOfWeek.value - firstDayOfWeek.value,
-            DayOfWeek.entries.size,
+            COLUMN_COUNT,
         )
+        val requiredCellCount = leadingDays + month.lengthOfMonth()
+        val weekCount = (requiredCellCount + COLUMN_COUNT - 1) / COLUMN_COUNT
         val firstVisibleDate = firstOfMonth.minusDays(leadingDays.toLong())
         return ClosedOpenDateRange(
             start = firstVisibleDate,
-            endExclusive = firstVisibleDate.plusDays(MONTH_CELL_COUNT.toLong()),
+            endExclusive = firstVisibleDate.plusDays((weekCount * COLUMN_COUNT).toLong()),
+            weekCount = weekCount,
+        )
+    }
+
+    fun empty(
+        now: Instant,
+        zoneId: ZoneId,
+        firstDayOfWeek: DayOfWeek,
+    ): WidgetSnapshot {
+        val today = now.atZone(zoneId).toLocalDate()
+        return create(
+            month = YearMonth.from(today),
+            today = today,
+            firstDayOfWeek = firstDayOfWeek,
+            indicators = emptyMap(),
+            agendaEvents = emptyList(),
+            now = now,
         )
     }
 
@@ -37,7 +59,7 @@ object WidgetSnapshotFactory {
         now: Instant,
     ): WidgetSnapshot {
         val range = visibleDateRange(month, firstDayOfWeek)
-        val cells = List(MONTH_CELL_COUNT) { index ->
+        val cells = List(range.weekCount * COLUMN_COUNT) { index ->
             val date = range.start.plusDays(index.toLong())
             val dayIndicators = indicators[date]
             WidgetMonthCell(
@@ -68,6 +90,7 @@ object WidgetSnapshotFactory {
                 displayedMonth = month,
                 today = today,
                 firstDayOfWeek = firstDayOfWeek,
+                weekCount = range.weekCount,
                 cells = cells,
             ),
             agenda = WidgetAgendaState(
@@ -88,4 +111,5 @@ object WidgetSnapshotFactory {
 data class ClosedOpenDateRange(
     val start: LocalDate,
     val endExclusive: LocalDate,
+    val weekCount: Int,
 )

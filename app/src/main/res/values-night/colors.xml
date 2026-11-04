@@ -4,5 +4,6 @@
     <color name="widget_text_primary">#FAFAFA</color>
     <color name="widget_text_secondary">#BDBDBD</color>
     <color name="widget_accent">#FF6B6B</color>
+    <color name="widget_today_fill">#33FAFAFA</color>
     <color name="launcher_background">#212121</color>
 </resources>

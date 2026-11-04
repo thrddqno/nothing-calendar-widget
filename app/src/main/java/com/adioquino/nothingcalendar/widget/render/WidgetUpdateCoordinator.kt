@@ -6,6 +6,12 @@ import android.content.Context
 import com.adioquino.nothingcalendar.calendar.data.CalendarReadFailure
 import com.adioquino.nothingcalendar.widget.presentation.WidgetDataModule
 import com.adioquino.nothingcalendar.widget.presentation.WidgetLoadState
+import com.adioquino.nothingcalendar.widget.presentation.WidgetSnapshotFactory
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.WeekFields
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CancellationException
@@ -27,7 +33,10 @@ object WidgetUpdateCoordinator {
         pendingResult: BroadcastReceiver.PendingResult,
     ) {
         val appContext = context.applicationContext
-        val renderer = PlaceholderWidgetRenderingEngine(appContext)
+        val renderer: WidgetRenderingEngine = when (kind) {
+            WidgetKind.MONTH -> MonthWidgetRenderingEngine(appContext)
+            WidgetKind.AGENDA, WidgetKind.COMBINED -> PlaceholderWidgetRenderingEngine(appContext)
+        }
         if (appWidgetIds.isEmpty()) {
             pendingResult.finish()
             return
@@ -47,7 +56,14 @@ object WidgetUpdateCoordinator {
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (_: Exception) {
-                    WidgetLoadState.ProviderFailure(CalendarReadFailure.PROVIDER_UNAVAILABLE)
+                    WidgetLoadState.ProviderFailure(
+                        reason = CalendarReadFailure.PROVIDER_UNAVAILABLE,
+                        snapshot = WidgetSnapshotFactory.empty(
+                            now = Instant.now(),
+                            zoneId = ZoneId.systemDefault(),
+                            firstDayOfWeek = localeFirstDayOfWeek(),
+                        ),
+                    )
                 }
                 appWidgetIds.forEach { appWidgetId ->
                     runCatching {
@@ -67,5 +83,12 @@ object WidgetUpdateCoordinator {
 
     fun invalidate(appWidgetIds: IntArray) {
         appWidgetIds.forEach(generations::remove)
+    }
+
+    private fun localeFirstDayOfWeek(): DayOfWeek = when (
+        WeekFields.of(Locale.getDefault()).firstDayOfWeek
+    ) {
+        DayOfWeek.SUNDAY -> DayOfWeek.SUNDAY
+        else -> DayOfWeek.MONDAY
     }
 }

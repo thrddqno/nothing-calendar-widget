@@ -16,6 +16,7 @@ data class WidgetMonthState(
     val displayedMonth: YearMonth,
     val today: LocalDate,
     val firstDayOfWeek: DayOfWeek,
+    val weekCount: Int,
     val cells: List<WidgetMonthCell>,
 )
 
@@ -54,9 +55,12 @@ sealed interface WidgetLoadState {
 
     data class NoUpcomingEvents(val snapshot: WidgetSnapshot) : WidgetLoadState
 
-    data object PermissionDenied : WidgetLoadState
+    data class PermissionDenied(val snapshot: WidgetSnapshot) : WidgetLoadState
 
-    data object NoAvailableCalendars : WidgetLoadState
+    data class NoAvailableCalendars(val snapshot: WidgetSnapshot) : WidgetLoadState
 
-    data class ProviderFailure(val reason: CalendarReadFailure) : WidgetLoadState
+    data class ProviderFailure(
+        val reason: CalendarReadFailure,
+        val snapshot: WidgetSnapshot,
+    ) : WidgetLoadState
 }

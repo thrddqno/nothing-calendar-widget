@@ -47,7 +47,9 @@ class WidgetDataLoaderTest {
         val repository = FakeCalendarRepository()
         val loader = loader(repository, permissionGranted = false)
 
-        assertEquals(WidgetLoadState.PermissionDenied, loader.load())
+        val state = loader.load() as WidgetLoadState.PermissionDenied
+        assertTrue(state.snapshot.month.cells.all { it.indicators.count == 0 })
+        assertTrue(state.snapshot.month.cells.any(WidgetMonthCell::isToday))
         assertEquals(0, repository.calendarCalls)
     }
 
@@ -57,7 +59,8 @@ class WidgetDataLoaderTest {
             calendarsResult = CalendarReadResult.Success(emptyList()),
         )
 
-        assertEquals(WidgetLoadState.NoAvailableCalendars, loader(repository).load())
+        val state = loader(repository).load() as WidgetLoadState.NoAvailableCalendars
+        assertTrue(state.snapshot.month.cells.all { it.indicators.count == 0 })
         assertEquals(0, repository.eventCalls)
     }
 
@@ -68,9 +71,9 @@ class WidgetDataLoaderTest {
         )
         val settings = FakeSettingsRepository(selectedIds = setOf(99))
 
-        assertEquals(
-            WidgetLoadState.NoAvailableCalendars,
-            loader(repository, settingsRepository = settings).load(),
+        assertTrue(
+            loader(repository, settingsRepository = settings).load() is
+                WidgetLoadState.NoAvailableCalendars,
         )
     }
 
@@ -80,10 +83,9 @@ class WidgetDataLoaderTest {
             calendarsResult = CalendarReadResult.Failure(CalendarReadFailure.PROVIDER_UNAVAILABLE),
         )
 
-        assertEquals(
-            WidgetLoadState.ProviderFailure(CalendarReadFailure.PROVIDER_UNAVAILABLE),
-            loader(repository).load(),
-        )
+        val result = loader(repository).load() as WidgetLoadState.ProviderFailure
+        assertEquals(CalendarReadFailure.PROVIDER_UNAVAILABLE, result.reason)
+        assertTrue(result.snapshot.month.cells.all { it.indicators.count == 0 })
     }
 
     @Test
@@ -96,7 +98,7 @@ class WidgetDataLoaderTest {
 
         assertEquals(YearMonth.of(2026, 5), result.snapshot.month.displayedMonth)
         assertEquals(0, result.snapshot.agenda.totalEligibleEvents)
-        assertEquals(42, result.snapshot.month.cells.size)
+        assertEquals(35, result.snapshot.month.cells.size)
     }
 
     @Test

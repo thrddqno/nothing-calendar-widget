@@ -38,10 +38,10 @@ class PlaceholderWidgetRenderingEngine(
 
     private fun diagnosticText(kind: WidgetKind, state: WidgetLoadState): Pair<String, String> = when (state) {
         WidgetLoadState.Loading -> context.getString(kind.titleRes) to context.getString(R.string.widget_loading)
-        WidgetLoadState.PermissionDenied -> {
+        is WidgetLoadState.PermissionDenied -> {
             context.getString(kind.titleRes) to context.getString(R.string.widget_permission_required)
         }
-        WidgetLoadState.NoAvailableCalendars -> {
+        is WidgetLoadState.NoAvailableCalendars -> {
             context.getString(kind.titleRes) to context.getString(R.string.widget_no_calendars)
         }
         is WidgetLoadState.ProviderFailure -> {
