@@ -34,9 +34,9 @@ class AgendaWidgetPresenterTest {
 
     @Test
     fun `removes duplicate occurrence IDs but preserves recurring instances`() {
-        val first = occurrence(10, "2026-11-06T09:00:00Z", "2026-11-06T10:00:00Z", "series:1")
+        val first = occurrence(10, "2026-11-05T13:00:00Z", "2026-11-05T14:00:00Z", "series:1")
         val duplicate = first.copy(title = "Duplicate")
-        val second = occurrence(10, "2026-11-13T09:00:00Z", "2026-11-13T10:00:00Z", "series:2")
+        val second = occurrence(10, "2026-11-05T15:00:00Z", "2026-11-05T16:00:00Z", "series:2")
 
         val result = presenter.present(listOf(second, duplicate, first), now, 150)
 
@@ -62,6 +62,34 @@ class AgendaWidgetPresenterTest {
         )
 
         assertNull(result.rows.single().calendarColor)
+    }
+
+    @Test
+    fun `overflow counts only eligible events inside rolling window`() {
+        val occurrences = List(586) { index ->
+            val start = if (index < 4) {
+                now.plusSeconds(index.toLong() + 1)
+            } else {
+                now.plusSeconds(46_800 + index.toLong())
+            }
+            WidgetAgendaOccurrence(
+                eventId = index.toLong(),
+                occurrenceId = "occurrence:$index",
+                title = "Event $index",
+                startsAt = start,
+                endsAt = start.plusSeconds(1_800),
+                isAllDay = false,
+                calendarColor = null,
+                isOngoing = false,
+            )
+        }
+
+        val result = presenter.present(occurrences, now, 164)
+
+        assertEquals(4, result.totalEligibleEvents)
+        assertEquals(3, result.rows.size)
+        assertEquals(1, result.hiddenEventCount)
+        assertEquals(true, result.showOverflow)
     }
 
     private fun occurrence(

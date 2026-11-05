@@ -1,7 +1,6 @@
 package com.adioquino.nothingcalendar.widget.render
 
 import android.content.Context
-import android.text.format.DateFormat
 import com.adioquino.nothingcalendar.R
 import com.adioquino.nothingcalendar.widget.agenda.AgendaEventFormatter
 import com.adioquino.nothingcalendar.widget.agenda.AgendaFormatStrings
@@ -16,7 +15,7 @@ fun createAgendaWidgetPresenter(
     AgendaEventFormatter(
         locale = Locale.getDefault(),
         zoneId = ZoneId.systemDefault(),
-        use24HourTime = DateFormat.is24HourFormat(context),
+        use24HourTime = false,
         strings = AgendaFormatStrings(
             allDay = context.getString(R.string.widget_all_day),
             now = context.getString(R.string.widget_now),

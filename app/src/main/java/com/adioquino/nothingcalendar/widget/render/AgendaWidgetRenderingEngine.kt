@@ -47,7 +47,7 @@ class AgendaWidgetRenderingEngine(
             if (model.rows.isEmpty()) {
                 sectionRenderer.renderMessage(
                     views,
-                    context.getString(R.string.widget_nothing_upcoming),
+                    context.getString(R.string.widget_nothing_in_next_12_hours),
                     palette.secondaryText,
                 )
             } else {
@@ -69,7 +69,7 @@ class AgendaWidgetRenderingEngine(
         is WidgetLoadState.NoAvailableCalendars -> context.getString(R.string.widget_no_calendars)
         is WidgetLoadState.ProviderFailure -> context.getString(R.string.widget_provider_failure)
         is WidgetLoadState.Ready, is WidgetLoadState.NoUpcomingEvents -> {
-            context.getString(R.string.widget_nothing_upcoming)
+            context.getString(R.string.widget_nothing_in_next_12_hours)
         }
     }
 }

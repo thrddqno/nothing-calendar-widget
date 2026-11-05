@@ -106,7 +106,7 @@ class TodayAgendaWidgetRenderingEngine(
     }
 
     private fun TodayAgendaStatus.message(): String = when (this) {
-        TodayAgendaStatus.EMPTY -> context.getString(R.string.widget_nothing_upcoming)
+        TodayAgendaStatus.EMPTY -> context.getString(R.string.widget_nothing_in_next_12_hours)
         TodayAgendaStatus.LOADING -> context.getString(R.string.widget_loading_compact)
         TodayAgendaStatus.PERMISSION_DENIED -> {
             context.getString(R.string.widget_calendar_access_required)

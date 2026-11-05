@@ -79,7 +79,7 @@ class CombinedWidgetRenderingEngine(
     }
 
     private fun CombinedAgendaStatus.message(): String = when (this) {
-        CombinedAgendaStatus.EMPTY -> context.getString(R.string.widget_nothing_upcoming)
+        CombinedAgendaStatus.EMPTY -> context.getString(R.string.widget_nothing_in_next_12_hours)
         CombinedAgendaStatus.LOADING -> context.getString(R.string.widget_loading_compact)
         CombinedAgendaStatus.PERMISSION_DENIED -> {
             context.getString(R.string.widget_calendar_access_required)

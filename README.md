@@ -2,9 +2,9 @@
 
 Native Kotlin Android app providing four independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 3.5 status
+## Run 3.5.1 status
 
-Run 3.5 implements all four widgets on the shared calendar pipeline:
+Run 3.5.1 implements all four widgets on the shared calendar pipeline:
 
 - 2×2 Month Calendar widget
 - 2×2 Upcoming Events widget
@@ -42,6 +42,9 @@ Run 3.5 implements all four widgets on the shared calendar pipeline:
 - Locale- and time-zone-aware large current-date presentation
 - Width, height, and font-scale-aware horizontal agenda capacity
 - Safe event-specific calendar intents with occurrence timestamps
+- Shared rolling 12-hour agenda eligibility across all agenda widgets
+- Exact overflow counts limited to undisplayed events inside that window
+- Explicit 12-hour AM/PM event presentation
 
 All four widgets render real calendar data. No fabricated events are shown.
 
@@ -115,8 +118,9 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `CombinedLayoutPolicy` reserves the complete month before allocating agenda rows.
 - `TodayAgendaWidgetRenderingEngine` renders the horizontal large-date and agenda layout.
 - `TodayDatePresenter` and `TodayAgendaCapacityPolicy` keep date and sizing logic deterministic.
+- `AgendaWindowPolicy` applies half-open interval overlap before row capacity.
 
-## Run 3.5 limitations
+## Run 3.5.1 limitations
 
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI

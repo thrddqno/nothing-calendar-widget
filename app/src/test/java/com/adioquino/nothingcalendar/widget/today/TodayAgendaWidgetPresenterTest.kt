@@ -27,7 +27,7 @@ class TodayAgendaWidgetPresenterTest {
             AgendaEventFormatter(
                 locale = Locale.US,
                 zoneId = ZoneId.of("UTC"),
-                use24HourTime = true,
+                use24HourTime = false,
                 strings = AgendaFormatStrings("ALL DAY", "NOW", "Untitled event"),
                 includeEndTime = true,
             ),
@@ -54,7 +54,7 @@ class TodayAgendaWidgetPresenterTest {
 
         val result = present(WidgetLoadState.Ready(snapshot), 250)
 
-        assertEquals("13:00–14:00", result.agenda.rows.single().temporalLabel)
+        assertEquals("1:00–2:00 PM", result.agenda.rows.single().temporalLabel)
     }
 
     @Test
@@ -64,8 +64,8 @@ class TodayAgendaWidgetPresenterTest {
             originalEventId = null,
             calendarId = 1,
             title = "Conference",
-            startsAt = Instant.parse("2026-11-06T00:00:00Z"),
-            endsAt = Instant.parse("2026-11-08T00:00:00Z"),
+            startsAt = Instant.parse("2026-11-05T00:00:00Z"),
+            endsAt = Instant.parse("2026-11-07T00:00:00Z"),
             isAllDay = true,
             eventTimeZone = "UTC",
             calendarColor = null,
@@ -73,7 +73,7 @@ class TodayAgendaWidgetPresenterTest {
 
         val result = present(WidgetLoadState.Ready(snapshot(listOf(allDay))), 250)
 
-        assertEquals("FRI ALL DAY", result.agenda.rows.single().temporalLabel)
+        assertEquals("ALL DAY", result.agenda.rows.single().temporalLabel)
     }
 
     @Test

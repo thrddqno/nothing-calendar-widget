@@ -8,6 +8,7 @@ import com.adioquino.nothingcalendar.calendar.domain.CalendarEventProcessor
 import com.adioquino.nothingcalendar.calendar.domain.CalendarQueryRange
 import com.adioquino.nothingcalendar.calendar.domain.CalendarSelectionResolver
 import com.adioquino.nothingcalendar.settings.SettingsRepository
+import com.adioquino.nothingcalendar.widget.agenda.AgendaWindowPolicy
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.Duration
@@ -30,7 +31,7 @@ class WidgetDataLoader(
     private val clock: Clock = Clock.systemUTC(),
     private val zoneId: ZoneId = ZoneId.systemDefault(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val agendaLookahead: Duration = Duration.ofDays(90),
+    private val agendaLookahead: Duration = AgendaWindowPolicy.WINDOW_DURATION,
 ) {
     init {
         require(!agendaLookahead.isZero && !agendaLookahead.isNegative) {

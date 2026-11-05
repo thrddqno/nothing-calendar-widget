@@ -5,6 +5,7 @@ import java.time.Instant
 
 class AgendaWidgetPresenter(
     private val formatter: AgendaEventFormatter,
+    private val windowPolicy: AgendaWindowPolicy = AgendaWindowPolicy(),
 ) {
     fun present(
         occurrences: List<WidgetAgendaOccurrence>,
@@ -54,16 +55,7 @@ class AgendaWidgetPresenter(
         now: Instant,
         capacityResolver: (Int) -> AgendaCapacity,
     ): AgendaRenderModel {
-        val eligible = occurrences
-            .asSequence()
-            .distinctBy(WidgetAgendaOccurrence::occurrenceId)
-            .filter { it.endsAt.isAfter(now) }
-            .sortedWith(
-                compareBy<WidgetAgendaOccurrence>(WidgetAgendaOccurrence::startsAt)
-                    .thenBy(WidgetAgendaOccurrence::endsAt)
-                    .thenBy(WidgetAgendaOccurrence::eventId),
-            )
-            .toList()
+        val eligible = windowPolicy.eligibleOccurrences(occurrences, now)
         val capacity = capacityResolver(eligible.size)
         val rows = eligible.take(capacity.visibleEventRows).map { occurrence ->
             val formatted = formatter.format(occurrence, now)

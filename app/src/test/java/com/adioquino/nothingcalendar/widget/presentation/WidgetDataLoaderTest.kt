@@ -120,6 +120,8 @@ class WidgetDataLoaderTest {
         )
         assertEquals(1, repository.calendarCalls)
         assertEquals(2, repository.eventCalls)
+        assertEquals(now, repository.eventRanges[1].startsAt)
+        assertEquals(now.plus(Duration.ofHours(12)), repository.eventRanges[1].endsAt)
         assertEquals(listOf(setOf(1L), setOf(1L)), repository.queriedCalendarIds)
     }
 

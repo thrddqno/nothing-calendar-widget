@@ -42,6 +42,56 @@ class AgendaEventFormatterTest {
     }
 
     @Test
+    fun `widgets format times with AM and PM`() {
+        val morning = formatter(use24HourTime = false).format(
+            occurrence("2026-11-05T08:00:00Z", "2026-11-05T09:00:00Z"),
+            Instant.parse("2026-11-05T07:00:00Z"),
+        )
+        val afternoon = formatter(use24HourTime = false).format(
+            occurrence("2026-11-05T13:00:00Z", "2026-11-05T14:00:00Z"),
+            now,
+        )
+
+        assertEquals("8:00 AM", morning.temporalLabel)
+        assertEquals("1:00 PM", afternoon.temporalLabel)
+    }
+
+    @Test
+    fun `noon and midnight use correct meridiem`() {
+        val noon = formatter(use24HourTime = false).format(
+            occurrence("2026-11-05T12:00:00Z", "2026-11-05T12:30:00Z"),
+            Instant.parse("2026-11-05T11:00:00Z"),
+        )
+        val midnight = formatter(use24HourTime = false).format(
+            occurrence("2026-11-06T00:00:00Z", "2026-11-06T00:30:00Z"),
+            now,
+        )
+
+        assertEquals("12:00 PM", noon.temporalLabel)
+        assertEquals("FRI 12:00 AM", midnight.temporalLabel)
+    }
+
+    @Test
+    fun `same-meridiem range omits repeated marker without ambiguity`() {
+        val result = formatter(use24HourTime = false, includeEndTime = true).format(
+            occurrence("2026-11-05T12:00:00Z", "2026-11-05T12:30:00Z"),
+            Instant.parse("2026-11-05T11:00:00Z"),
+        )
+
+        assertEquals("12:00–12:30 PM", result.temporalLabel)
+    }
+
+    @Test
+    fun `range crossing meridiem retains both markers`() {
+        val result = formatter(use24HourTime = false, includeEndTime = true).format(
+            occurrence("2026-11-05T11:30:00Z", "2026-11-05T13:00:00Z"),
+            Instant.parse("2026-11-05T10:00:00Z"),
+        )
+
+        assertEquals("11:30 AM–1:00 PM", result.temporalLabel)
+    }
+
+    @Test
     fun `tomorrow event includes abbreviated weekday`() {
         val result = formatter().format(
             occurrence("2026-11-06T09:00:00Z", "2026-11-06T10:00:00Z"),
@@ -112,12 +162,12 @@ class AgendaEventFormatterTest {
     fun `timed date follows device zone across UTC boundary`() {
         val zone = ZoneId.of("America/Los_Angeles")
         val localNow = Instant.parse("2026-11-05T06:00:00Z")
-        val result = formatter(zoneId = zone).format(
+        val result = formatter(zoneId = zone, use24HourTime = false).format(
             occurrence("2026-11-05T07:30:00Z", "2026-11-05T08:30:00Z"),
             localNow,
         )
 
-        assertEquals("23:30", result.temporalLabel)
+        assertEquals("11:30 PM", result.temporalLabel)
     }
 
     private fun formatter(

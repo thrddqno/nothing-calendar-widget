@@ -87,8 +87,8 @@ class CombinedWidgetPresenterTest {
             originalEventId = null,
             calendarId = 1,
             title = title,
-            startsAt = Instant.parse("2026-08-11T00:00:00Z"),
-            endsAt = Instant.parse("2026-08-13T00:00:00Z"),
+            startsAt = Instant.parse("2026-08-10T00:00:00Z"),
+            endsAt = Instant.parse("2026-08-12T00:00:00Z"),
             isAllDay = true,
             eventTimeZone = "UTC",
             calendarColor = 0xFF336699.toInt(),
@@ -98,7 +98,7 @@ class CombinedWidgetPresenterTest {
         val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 400)
 
         assertEquals(title, result.agenda.rows.single().title)
-        assertEquals("TUE ALL DAY", result.agenda.rows.single().temporalLabel)
+        assertEquals("ALL DAY", result.agenda.rows.single().temporalLabel)
     }
 
     @Test

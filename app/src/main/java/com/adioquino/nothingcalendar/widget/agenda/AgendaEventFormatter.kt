@@ -52,7 +52,7 @@ class AgendaEventFormatter(
         val start = startsAt.atZone(zoneId)
         val end = endsAt.atZone(zoneId)
         val time = if (includeEndTime && start.toLocalDate() == end.toLocalDate()) {
-            "${start.format(timeFormatter())}–${end.format(timeFormatter())}"
+            formatTimeRange(start.toInstant(), end.toInstant())
         } else {
             start.format(timeFormatter())
         }
@@ -67,6 +67,23 @@ class AgendaEventFormatter(
         if (use24HourTime) "HH:mm" else "h:mm a",
         locale,
     )
+
+    private fun formatTimeRange(startsAt: Instant, endsAt: Instant): String {
+        val start = startsAt.atZone(zoneId)
+        val end = endsAt.atZone(zoneId)
+        if (use24HourTime) {
+            return "${start.format(timeFormatter())}–${end.format(timeFormatter())}"
+        }
+        val meridiemFormatter = DateTimeFormatter.ofPattern("a", locale)
+        val startMeridiem = start.format(meridiemFormatter)
+        val endMeridiem = end.format(meridiemFormatter)
+        return if (startMeridiem == endMeridiem) {
+            val clockFormatter = DateTimeFormatter.ofPattern("h:mm", locale)
+            "${start.format(clockFormatter)}–${end.format(clockFormatter)} $endMeridiem"
+        } else {
+            "${start.format(timeFormatter())}–${end.format(timeFormatter())}"
+        }
+    }
 
     private fun LocalDate.weekdayLabel(): String = format(
         DateTimeFormatter.ofPattern("EEE", locale),
