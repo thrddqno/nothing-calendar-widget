@@ -116,6 +116,6 @@ class CombinedWidgetRenderingEngine(
 
     private companion object {
         const val DEFAULT_WIDTH_DP = 250
-        const val DEFAULT_HEIGHT_DP = 400
+        const val DEFAULT_HEIGHT_DP = 250
     }
 }

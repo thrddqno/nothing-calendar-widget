@@ -35,7 +35,7 @@ class WidgetResponsiveSizingPolicyTest {
     }
 
     @Test
-    fun `typical 4x6 combined month reserves compact month block`() {
+    fun `expanded combined month uses lower panel space`() {
         val result = WidgetResponsiveSizingPolicy.calculate(
             combined(rows = 6, widthDp = 250, heightDp = 400, eventCount = 10),
         )
@@ -82,13 +82,26 @@ class WidgetResponsiveSizingPolicyTest {
     }
 
     @Test
-    fun `short combined widget keeps one whole row instead of a partial row`() {
+    fun `default 4x4 six-week month fits two rows and accurate overflow`() {
         val result = WidgetResponsiveSizingPolicy.calculate(
-            combined(rows = 6, widthDp = 250, heightDp = 250, eventCount = 3),
+            combined(rows = 6, widthDp = 250, heightDp = 250, eventCount = 7),
         )
 
-        assertEquals(1, result.agendaCapacity.visibleEventRows)
-        assertEquals(2, result.agendaCapacity.hiddenEventCount)
+        assertEquals(17, result.calendarRowHeightDp)
+        assertEquals(2, result.agendaCapacity.visibleEventRows)
+        assertEquals(5, result.agendaCapacity.hiddenEventCount)
+        assertTrue(result.agendaCapacity.showOverflow)
+    }
+
+    @Test
+    fun `default 4x4 five-week month fits three complete agenda rows`() {
+        val result = WidgetResponsiveSizingPolicy.calculate(
+            combined(rows = 5, widthDp = 250, heightDp = 250, eventCount = 6),
+        )
+
+        assertEquals(14, result.calendarRowHeightDp)
+        assertEquals(3, result.agendaCapacity.visibleEventRows)
+        assertEquals(3, result.agendaCapacity.hiddenEventCount)
         assertTrue(result.agendaCapacity.showOverflow)
     }
 
@@ -127,11 +140,11 @@ class WidgetResponsiveSizingPolicyTest {
             combined(rows = 6, heightDp = 250, fontScale = 1.5f, eventCount = 3),
         )
 
-        assertEquals(26, result.calendarRowHeightDp)
-        assertEquals(204, result.monthSectionHeightDp)
-        assertEquals(4, result.agendaContentHeightDp)
-        assertEquals(0, result.agendaCapacity.visibleEventRows)
-        assertFalse(result.agendaCapacity.showOverflow)
+        assertEquals(16, result.calendarRowHeightDp)
+        assertEquals(144, result.monthSectionHeightDp)
+        assertEquals(64, result.agendaContentHeightDp)
+        assertEquals(1, result.agendaCapacity.visibleEventRows)
+        assertTrue(result.agendaCapacity.showOverflow)
     }
 
     @Test

@@ -58,7 +58,7 @@ class CombinedWidgetPresenterTest {
     }
 
     @Test
-    fun `small widget keeps complete six-row month and one complete agenda row`() {
+    fun `default 4x4 widget keeps complete six-row month and one complete agenda row`() {
         val snapshot = snapshot(events = listOf(event(1, 13, 14)))
 
         val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 250)
@@ -66,6 +66,18 @@ class CombinedWidgetPresenterTest {
         assertEquals(6, result.month.weekCount)
         assertEquals(1, result.agenda.rows.size)
         assertEquals(0, result.agenda.hiddenEventCount)
+    }
+
+    @Test
+    fun `default 4x4 six-row month shows two events with accurate overflow`() {
+        val snapshot = snapshot(events = (1L..7L).map { event(it, 12 + it, 13 + it) })
+
+        val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 250)
+
+        assertEquals(6, result.month.weekCount)
+        assertEquals(2, result.agenda.rows.size)
+        assertEquals(5, result.agenda.hiddenEventCount)
+        assertTrue(result.agenda.showOverflow)
     }
 
     @Test

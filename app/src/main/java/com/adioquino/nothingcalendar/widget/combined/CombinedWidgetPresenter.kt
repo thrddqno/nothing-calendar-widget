@@ -20,7 +20,7 @@ class CombinedWidgetPresenter(
         fontScale: Float = 1f,
     ): CombinedRenderModel {
         val snapshot = state.snapshotOr(loadingSnapshot)
-        val layout = CombinedLayoutPolicy.calculate(
+        var resolvedLayout = CombinedLayoutPolicy.calculate(
             availableHeightDp = availableHeightDp,
             monthWeekCount = snapshot.month.weekCount,
             availableWidthDp = availableWidthDp,
@@ -32,13 +32,14 @@ class CombinedWidgetPresenter(
                 occurrences = snapshot.agenda.occurrences,
                 now = now,
             ) { eligibleCount ->
-                val resolved = CombinedLayoutPolicy.calculate(
+                resolvedLayout = CombinedLayoutPolicy.calculate(
                     availableHeightDp = availableHeightDp,
                     monthWeekCount = snapshot.month.weekCount,
                     availableWidthDp = availableWidthDp,
                     fontScale = fontScale,
                     eligibleEventCount = eligibleCount,
-                ).spec.agendaCapacity
+                )
+                val resolved = resolvedLayout.spec.agendaCapacity
                 AgendaCapacity(
                     visibleEventRows = resolved.visibleEventRows,
                     showOverflow = resolved.showOverflow,
@@ -61,7 +62,7 @@ class CombinedWidgetPresenter(
             } else {
                 status
             },
-            layout = layout,
+            layout = resolvedLayout,
         )
     }
 

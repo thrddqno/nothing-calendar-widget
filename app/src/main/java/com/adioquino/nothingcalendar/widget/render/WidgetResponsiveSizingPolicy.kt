@@ -31,13 +31,27 @@ object WidgetResponsiveSizingPolicy {
                     .coerceAtLeast(0) / monthRows.toDouble(),
             ).toInt().coerceAtLeast(1)
             WidgetKind.COMBINED -> {
+                val desiredAgendaRows = minOf(
+                    input.availableAgendaEventCount,
+                    if (monthRows <= 5) 3 else 2,
+                )
+                val minimumAgendaContentHeight = if (input.availableAgendaEventCount == 0) {
+                    metrics.overflowHeightDp
+                } else {
+                    desiredAgendaRows * metrics.agendaRowHeightDp +
+                        if (input.availableAgendaEventCount > desiredAgendaRows) {
+                            metrics.overflowHeightDp
+                        } else {
+                            0
+                        }
+                }
                 val availableGridHeight = height - verticalPadding * 2 -
                     metrics.headerHeightDp - metrics.weekdayHeaderHeightDp -
                     metrics.sectionSpacingDp - metrics.agendaPanelVerticalInsetDp * 2 -
-                    metrics.agendaHeaderHeightDp
+                    metrics.agendaHeaderHeightDp - minimumAgendaContentHeight
                 val fittingRowHeight = floor(
                     availableGridHeight.coerceAtLeast(0) / monthRows.toDouble(),
-                ).toInt().coerceAtLeast(1)
+                ).toInt().coerceAtLeast(metrics.minimumReadableCalendarRowHeightDp)
                 minOf(metrics.calendarRowHeightDp, fittingRowHeight)
             }
             else -> 0
@@ -158,6 +172,11 @@ object WidgetResponsiveSizingPolicy {
                     largeFont -> 26
                     else -> 22
                 },
+                minimumReadableCalendarRowHeightDp = when {
+                    fontScale >= 1.5f -> 16
+                    fontScale >= 1.15f -> 15
+                    else -> 14
+                },
                 sectionSpacingDp = 6,
                 agendaPanelHorizontalInsetDp = 8,
                 agendaPanelVerticalInsetDp = 2,
@@ -175,6 +194,7 @@ object WidgetResponsiveSizingPolicy {
         val weekdayHeaderHeightDp: Int = 0,
         val dateTextSizeSp: Float = 10f,
         val calendarRowHeightDp: Int = 0,
+        val minimumReadableCalendarRowHeightDp: Int = 1,
         val sectionSpacingDp: Int = 0,
         val agendaPanelHorizontalInsetDp: Int = 0,
         val agendaPanelVerticalInsetDp: Int = 0,

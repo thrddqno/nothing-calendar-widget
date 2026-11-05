@@ -36,7 +36,7 @@
     <string name="widget_agenda_placeholder_message">Calendar status</string>
 
     <string name="widget_combined_name">Nothing Calendar — Combined</string>
-    <string name="widget_combined_description">4×6 month and upcoming events widget</string>
+    <string name="widget_combined_description">4×4 month and upcoming events widget</string>
     <string name="widget_combined_placeholder_title">Month + Upcoming</string>
     <string name="widget_combined_placeholder_message">Calendar status</string>
 
