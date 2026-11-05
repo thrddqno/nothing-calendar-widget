@@ -30,7 +30,16 @@ object WidgetResponsiveSizingPolicy {
                 (height - verticalPadding * 2 - metrics.headerHeightDp - metrics.weekdayHeaderHeightDp)
                     .coerceAtLeast(0) / monthRows.toDouble(),
             ).toInt().coerceAtLeast(1)
-            WidgetKind.COMBINED -> metrics.calendarRowHeightDp
+            WidgetKind.COMBINED -> {
+                val availableGridHeight = height - verticalPadding * 2 -
+                    metrics.headerHeightDp - metrics.weekdayHeaderHeightDp -
+                    metrics.sectionSpacingDp - metrics.agendaPanelVerticalInsetDp * 2 -
+                    metrics.agendaHeaderHeightDp
+                val fittingRowHeight = floor(
+                    availableGridHeight.coerceAtLeast(0) / monthRows.toDouble(),
+                ).toInt().coerceAtLeast(1)
+                minOf(metrics.calendarRowHeightDp, fittingRowHeight)
+            }
             else -> 0
         }
         val monthSectionHeight = if (input.monthRowCount == 0) {

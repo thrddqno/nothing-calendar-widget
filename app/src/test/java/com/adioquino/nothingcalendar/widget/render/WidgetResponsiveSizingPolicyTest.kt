@@ -122,6 +122,19 @@ class WidgetResponsiveSizingPolicyTest {
     }
 
     @Test
+    fun `short combined widget caps large-font rows to preserve complete grid`() {
+        val result = WidgetResponsiveSizingPolicy.calculate(
+            combined(rows = 6, heightDp = 250, fontScale = 1.5f, eventCount = 3),
+        )
+
+        assertEquals(26, result.calendarRowHeightDp)
+        assertEquals(204, result.monthSectionHeightDp)
+        assertEquals(4, result.agendaContentHeightDp)
+        assertEquals(0, result.agendaCapacity.visibleEventRows)
+        assertFalse(result.agendaCapacity.showOverflow)
+    }
+
+    @Test
     fun `large font reduces agenda capacity instead of clipping rows`() {
         val normal = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1f, eventCount = 4))
         val large = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1.15f, eventCount = 4))
