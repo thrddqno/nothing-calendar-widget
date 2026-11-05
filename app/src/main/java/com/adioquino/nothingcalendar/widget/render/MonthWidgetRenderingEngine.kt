@@ -45,7 +45,6 @@ class MonthWidgetRenderingEngine(
                 ),
             )
             RemoteViews(context.packageName, R.layout.widget_month).apply {
-                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
                 setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
                 renderStatus(this, state, palette.secondaryText)
                 MonthSectionRemoteViewsRenderer().render(
@@ -53,7 +52,10 @@ class MonthWidgetRenderingEngine(
                     month = month,
                     primaryTextColor = palette.primaryText,
                     secondaryTextColor = palette.secondaryText,
+                    todayForegroundColor = palette.todayForeground,
                     availableWidthDp = size.widthDp,
+                    headingTextSizeSp = spec.monthHeadingTextSizeSp,
+                    weekdayTextSizeSp = spec.weekdayTextSizeSp,
                     dateTextSizeSp = spec.dateTextSizeSp,
                 )
                 ResponsiveRemoteViews.applyLayout(

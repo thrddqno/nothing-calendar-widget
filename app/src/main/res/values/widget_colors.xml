@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_surface_base">#242725</color>
+    <color name="widget_surface_panel">#343936</color>
+    <color name="widget_surface_elevated">#424844</color>
+    <color name="widget_text_primary">#F5F5F2</color>
+    <color name="widget_text_secondary">#BEC4BF</color>
+    <color name="widget_text_muted">#929A94</color>
+    <color name="widget_divider">#45504A</color>
+    <color name="widget_border_subtle">#505A54</color>
+    <color name="widget_accent_nothing">#E54848</color>
+    <color name="widget_today_foreground">#FFFFFF</color>
+</resources>

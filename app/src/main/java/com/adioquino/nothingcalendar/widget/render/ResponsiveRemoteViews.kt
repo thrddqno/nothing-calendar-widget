@@ -54,6 +54,11 @@ object ResponsiveRemoteViews {
                 com.adioquino.nothingcalendar.R.id.agenda_header,
                 if (spec.showAgendaHeader) View.VISIBLE else View.GONE,
             )
+            views.setTextViewTextSize(
+                com.adioquino.nothingcalendar.R.id.agenda_header,
+                TypedValue.COMPLEX_UNIT_SP,
+                spec.sectionHeadingTextSizeSp,
+            )
         }
         if (kind == WidgetKind.COMBINED) {
             val horizontalInsetPx = (spec.agendaPanelHorizontalInsetDp * density).toInt()

@@ -10,8 +10,8 @@ android {
         applicationId = "com.adioquino.nothingcalendar"
         minSdk = 29
         targetSdk = 37
-        versionCode = 9
-        versionName = "0.3.7"
+        versionCode = 10
+        versionName = "0.4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

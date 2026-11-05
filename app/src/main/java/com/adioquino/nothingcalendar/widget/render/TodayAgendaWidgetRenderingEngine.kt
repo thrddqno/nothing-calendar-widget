@@ -2,6 +2,7 @@ package com.adioquino.nothingcalendar.widget.render
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.util.TypedValue
 import android.widget.RemoteViews
 import com.adioquino.nothingcalendar.R
 import com.adioquino.nothingcalendar.navigation.AppNavigation
@@ -67,8 +68,7 @@ class TodayAgendaWidgetRenderingEngine(
                 ),
             )
             val views = RemoteViews(context.packageName, R.layout.widget_today_agenda).apply {
-                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
-                setInt(R.id.today_divider, "setBackgroundColor", palette.secondaryText)
+                setInt(R.id.today_divider, "setBackgroundColor", palette.divider)
                 setTextViewText(R.id.today_month, model.date.month)
                 setTextViewText(R.id.today_day, model.date.day)
                 setTextViewText(R.id.today_weekday, model.date.weekday)
@@ -76,6 +76,21 @@ class TodayAgendaWidgetRenderingEngine(
                 setTextColor(R.id.today_day, palette.primaryText)
                 setTextColor(R.id.today_weekday, palette.secondaryText)
                 setTextColor(R.id.agenda_header, palette.primaryText)
+                setTextViewTextSize(
+                    R.id.today_month,
+                    TypedValue.COMPLEX_UNIT_SP,
+                    spec.monthHeadingTextSizeSp,
+                )
+                setTextViewTextSize(
+                    R.id.today_day,
+                    TypedValue.COMPLEX_UNIT_SP,
+                    spec.displayTextSizeSp,
+                )
+                setTextViewTextSize(
+                    R.id.today_weekday,
+                    TypedValue.COMPLEX_UNIT_SP,
+                    spec.weekdayTextSizeSp,
+                )
                 setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
                 setOnClickPendingIntent(R.id.today_date_section, calendarIntent)
                 setOnClickPendingIntent(R.id.agenda_header, calendarIntent)

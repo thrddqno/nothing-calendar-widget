@@ -17,20 +17,30 @@ class MonthSectionRemoteViewsRenderer(
         month: WidgetMonthState,
         primaryTextColor: Int,
         secondaryTextColor: Int,
+        todayForegroundColor: Int,
         availableWidthDp: Int,
+        headingTextSizeSp: Float,
+        weekdayTextSizeSp: Float,
         dateTextSizeSp: Float,
     ) {
         views.setTextViewText(R.id.month_title, formatMonthTitle(month, availableWidthDp))
         views.setTextColor(R.id.month_title, primaryTextColor)
-        renderWeekdays(views, month, secondaryTextColor)
-        renderDays(views, month, primaryTextColor, dateTextSizeSp)
+        views.setTextViewTextSize(R.id.month_title, TypedValue.COMPLEX_UNIT_SP, headingTextSizeSp)
+        renderWeekdays(views, month, secondaryTextColor, weekdayTextSizeSp)
+        renderDays(views, month, primaryTextColor, todayForegroundColor, dateTextSizeSp)
     }
 
-    private fun renderWeekdays(views: RemoteViews, month: WidgetMonthState, textColor: Int) {
+    private fun renderWeekdays(
+        views: RemoteViews,
+        month: WidgetMonthState,
+        textColor: Int,
+        textSizeSp: Float,
+    ) {
         WEEKDAY_VIEW_IDS.forEachIndexed { index, viewId ->
             val day = month.firstDayOfWeek.plus(index.toLong())
             views.setTextViewText(viewId, day.getDisplayName(TextStyle.NARROW, locale))
             views.setTextColor(viewId, textColor)
+            views.setTextViewTextSize(viewId, TypedValue.COMPLEX_UNIT_SP, textSizeSp)
         }
     }
 
@@ -38,6 +48,7 @@ class MonthSectionRemoteViewsRenderer(
         views: RemoteViews,
         month: WidgetMonthState,
         textColor: Int,
+        todayForegroundColor: Int,
         dateTextSizeSp: Float,
     ) {
         WEEK_ROW_IDS.forEachIndexed { index, rowId ->
@@ -49,7 +60,10 @@ class MonthSectionRemoteViewsRenderer(
                 MonthDayCellFormatter.format(cell.date.dayOfMonth, cell.indicators.count > 0)
             }
             views.setTextViewText(viewId, content?.dateText.orEmpty())
-            views.setTextColor(viewId, textColor)
+            views.setTextColor(
+                viewId,
+                if (visibleCell?.isToday == true) todayForegroundColor else textColor,
+            )
             views.setTextViewTextSize(viewId, TypedValue.COMPLEX_UNIT_SP, dateTextSizeSp)
             views.setViewVisibility(
                 INDICATOR_VIEW_IDS[index],

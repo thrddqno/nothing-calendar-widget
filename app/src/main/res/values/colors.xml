@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_background">#F2F1F3</color>
-    <color name="widget_text_primary">#171717</color>
-    <color name="widget_text_secondary">#616161</color>
-    <color name="widget_accent">#C62828</color>
-    <color name="widget_today_fill">#1F171717</color>
-    <color name="launcher_background">#F2F1F3</color>
+    <color name="widget_background">@color/widget_surface_base</color>
+    <color name="widget_accent">@color/widget_accent_nothing</color>
+    <color name="widget_today_fill">@color/widget_accent_nothing</color>
+    <color name="launcher_background">@color/widget_surface_base</color>
 </resources>

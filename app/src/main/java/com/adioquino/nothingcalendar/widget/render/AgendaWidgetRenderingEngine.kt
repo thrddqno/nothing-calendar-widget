@@ -43,7 +43,6 @@ class AgendaWidgetRenderingEngine(
                 ),
             )
             val views = RemoteViews(context.packageName, R.layout.widget_agenda)
-            views.setInt(R.id.widget_root, "setBackgroundColor", palette.background)
             views.setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
             views.setTextColor(R.id.agenda_header, palette.primaryText)
             val sectionRenderer = AgendaSectionRemoteViewsRenderer(context)

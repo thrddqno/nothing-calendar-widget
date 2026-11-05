@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="widget_space_xs">2dp</dimen>
+    <dimen name="widget_space_sm">4dp</dimen>
+    <dimen name="widget_space_md">8dp</dimen>
+    <dimen name="widget_space_lg">12dp</dimen>
+    <dimen name="widget_space_xl">16dp</dimen>
+    <dimen name="widget_space_2xl">24dp</dimen>
+
+    <dimen name="widget_outer_corner_radius">24dp</dimen>
+    <dimen name="widget_agenda_corner_radius">12dp</dimen>
+    <dimen name="widget_event_accent_width">3dp</dimen>
+    <dimen name="widget_event_content_gap_compact">5dp</dimen>
+    <dimen name="widget_event_content_gap">6dp</dimen>
+    <dimen name="widget_event_content_gap_panel">7dp</dimen>
+    <dimen name="widget_event_dot_diameter">3dp</dimen>
+    <dimen name="widget_divider_thickness">1dp</dimen>
+    <dimen name="widget_border_thickness">1dp</dimen>
+    <dimen name="widget_today_corner_radius">12dp</dimen>
+    <dimen name="widget_default_padding">6dp</dimen>
+    <dimen name="widget_compact_padding">4dp</dimen>
+    <dimen name="widget_agenda_panel_horizontal_padding">8dp</dimen>
+    <dimen name="widget_agenda_panel_vertical_padding">2dp</dimen>
+    <dimen name="widget_agenda_row_vertical_padding">1dp</dimen>
+    <dimen name="widget_today_horizontal_inset">1dp</dimen>
+</resources>

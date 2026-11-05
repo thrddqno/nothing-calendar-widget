@@ -25,4 +25,17 @@ class AgendaIndicatorColorResolverTest {
 
         assertEquals(0xFF444444.toInt(), result)
     }
+
+    @Test
+    fun `contrasting calendar color is preserved`() {
+        val calendarColor = 0xFFE54848.toInt()
+
+        val result = AgendaIndicatorColorResolver.resolve(
+            calendarColor = calendarColor,
+            backgroundColor = 0xFF242725.toInt(),
+            fallbackColor = 0xFFBEC4BF.toInt(),
+        )
+
+        assertEquals(calendarColor, result)
+    }
 }

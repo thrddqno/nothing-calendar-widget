@@ -4,38 +4,29 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/widget_background"
+    android:background="@drawable/widget_surface"
     android:orientation="vertical"
-    android:padding="6dp"
+    android:padding="@dimen/widget_default_padding"
     tools:ignore="Overdraw">
 
     <TextView
         android:id="@+id/month_title"
+        style="@style/Widget.NothingCalendar.Typography.Heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoSizeMaxTextSize="14sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
         android:ellipsize="end"
-        android:fontFamily="sans"
-        android:includeFontPadding="false"
         android:letterSpacing="0.06"
         android:maxLines="1"
-        android:text="@string/widget_month_placeholder_title"
-        android:textColor="@color/widget_text_primary"
-        android:textStyle="bold" />
+        android:text="@string/widget_month_placeholder_title" />
 
     <TextView
         android:id="@+id/month_status"
+        style="@style/Widget.NothingCalendar.Typography.EventMetadata"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:includeFontPadding="false"
         android:maxLines="1"
         android:text="@string/widget_loading_compact"
-        android:textColor="@color/widget_text_secondary"
-        android:textSize="8sp"
         tools:ignore="SmallSp" />
 
     <LinearLayout

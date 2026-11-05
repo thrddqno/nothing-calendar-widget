@@ -4,10 +4,10 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/widget_background"
+    android:background="@drawable/widget_surface"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="6dp"
+    android:padding="@dimen/widget_default_padding"
     tools:ignore="Overdraw">
 
     <LinearLayout
@@ -17,61 +17,48 @@
         android:layout_weight="34"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp">
+        android:paddingStart="@dimen/widget_space_sm"
+        android:paddingEnd="@dimen/widget_space_sm">
 
         <TextView
             android:id="@+id/today_month"
+            style="@style/Widget.NothingCalendar.Typography.Heading"
             android:layout_width="match_parent"
-            android:layout_height="12dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:letterSpacing="0.12"
             android:maxLines="1"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="11sp"
-            android:textStyle="bold"
             tools:text="NOV" />
 
         <TextView
             android:id="@+id/today_day"
+            style="@style/Widget.NothingCalendar.Typography.Display"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:autoSizeMaxTextSize="44sp"
-            android:autoSizeMinTextSize="34sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:fontFamily="sans-serif-condensed"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="@color/widget_text_primary"
-            android:textStyle="bold"
             tools:text="05" />
 
         <TextView
             android:id="@+id/today_weekday"
+            style="@style/Widget.NothingCalendar.Typography.Weekday"
             android:layout_width="match_parent"
-            android:layout_height="12dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:letterSpacing="0.12"
             android:maxLines="1"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="11sp"
-            android:textStyle="bold"
             tools:text="THU" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/today_divider"
-        android:layout_width="1dp"
+        android:layout_width="@dimen/widget_divider_thickness"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/widget_text_secondary"
+        android:layout_marginStart="@dimen/widget_space_md"
+        android:layout_marginTop="@dimen/widget_space_md"
+        android:layout_marginEnd="@dimen/widget_space_md"
+        android:layout_marginBottom="@dimen/widget_space_md"
+        android:background="@color/widget_divider"
         android:text="" />
 
     <LinearLayout
@@ -83,17 +70,13 @@
 
         <TextView
             android:id="@+id/agenda_header"
+            style="@style/Widget.NothingCalendar.Typography.SectionLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="14dp"
             android:gravity="center_vertical"
-            android:includeFontPadding="false"
-            android:letterSpacing="0.08"
             android:maxLines="1"
             android:text="@string/widget_agenda_header"
-            android:textColor="@color/widget_text_primary"
-            android:textSize="9sp"
-            android:textStyle="bold"
             tools:ignore="SmallSp" />
 
         <LinearLayout
@@ -107,9 +90,9 @@
 
             <TextView
                 android:id="@+id/agenda_accent_0"
-                android:layout_width="3dp"
+                android:layout_width="@dimen/widget_event_accent_width"
                 android:layout_height="18dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/widget_event_content_gap_compact"
                 android:background="@color/widget_text_secondary" />
 
             <LinearLayout
@@ -142,9 +125,9 @@
 
             <TextView
                 android:id="@+id/agenda_accent_1"
-                android:layout_width="3dp"
+                android:layout_width="@dimen/widget_event_accent_width"
                 android:layout_height="18dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/widget_event_content_gap_compact"
                 android:background="@color/widget_text_secondary" />
 
             <LinearLayout
@@ -177,9 +160,9 @@
 
             <TextView
                 android:id="@+id/agenda_accent_2"
-                android:layout_width="3dp"
+                android:layout_width="@dimen/widget_event_accent_width"
                 android:layout_height="18dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/widget_event_content_gap_compact"
                 android:background="@color/widget_text_secondary" />
 
             <LinearLayout
@@ -212,9 +195,9 @@
 
             <TextView
                 android:id="@+id/agenda_accent_3"
-                android:layout_width="3dp"
+                android:layout_width="@dimen/widget_event_accent_width"
                 android:layout_height="18dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/widget_event_content_gap_compact"
                 android:background="@color/widget_text_secondary" />
 
             <LinearLayout
@@ -238,27 +221,22 @@
 
         <TextView
             android:id="@+id/agenda_empty_state"
+            style="@style/Widget.NothingCalendar.Typography.Status"
             android:layout_width="match_parent"
             android:layout_height="84dp"
             android:ellipsize="end"
             android:gravity="center_vertical"
-            android:includeFontPadding="false"
             android:maxLines="2"
-            android:text="@string/widget_loading_compact"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="11sp" />
+            android:text="@string/widget_loading_compact" />
 
         <TextView
             android:id="@+id/agenda_overflow"
+            style="@style/Widget.NothingCalendar.Typography.Overflow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="12dp"
             android:gravity="end|center_vertical"
-            android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="9sp"
-            android:textStyle="bold"
             android:visibility="gone"
             tools:ignore="SmallSp"
             tools:text="+2" />

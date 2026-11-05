@@ -83,6 +83,10 @@ object WidgetResponsiveSizingPolicy {
             verticalPaddingDp = verticalPadding,
             headerHeightDp = metrics.headerHeightDp,
             weekdayHeaderHeightDp = metrics.weekdayHeaderHeightDp,
+            monthHeadingTextSizeSp = metrics.monthHeadingTextSizeSp,
+            sectionHeadingTextSizeSp = metrics.sectionHeadingTextSizeSp,
+            displayTextSizeSp = metrics.displayTextSizeSp,
+            weekdayTextSizeSp = metrics.weekdayTextSizeSp,
             dateTextSizeSp = metrics.dateTextSizeSp,
             calendarRowHeightDp = monthRowHeight,
             monthSectionHeightDp = monthSectionHeight,
@@ -142,11 +146,14 @@ object WidgetResponsiveSizingPolicy {
             WidgetKind.MONTH -> Metrics(
                 headerHeightDp = scaled(if (mode == WidgetLayoutMode.COMPACT) 14 else 18),
                 weekdayHeaderHeightDp = scaled(if (mode == WidgetLayoutMode.COMPACT) 10 else 12),
+                monthHeadingTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 14f else 16f,
+                weekdayTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 7f else 8f,
                 dateTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 8f else 10f,
             )
             WidgetKind.AGENDA -> Metrics(
                 headerHeightDp = scaled(18),
                 agendaHeaderHeightDp = scaled(18),
+                sectionHeadingTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 11f else 12f,
                 agendaRowHeightDp = agendaRowHeight,
                 overflowHeightDp = scaled(14),
                 maxAgendaRows = 4,
@@ -155,7 +162,16 @@ object WidgetResponsiveSizingPolicy {
             WidgetKind.TODAY_AGENDA -> Metrics(
                 headerHeightDp = scaled(14),
                 agendaHeaderHeightDp = scaled(14),
-                dateTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 36f else 44f,
+                monthHeadingTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 10f else 11f,
+                sectionHeadingTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 9f else 10f,
+                displayTextSizeSp = when {
+                    fontScale >= 1.5f -> 30f
+                    fontScale >= 1.3f -> 34f
+                    fontScale >= 1.15f -> 40f
+                    mode == WidgetLayoutMode.COMPACT -> 40f
+                    else -> 48f
+                },
+                weekdayTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 10f else 11f,
                 agendaRowHeightDp = agendaRowHeight,
                 overflowHeightDp = scaled(12),
                 maxAgendaRows = if (mode == WidgetLayoutMode.COMPACT || largeFont) 2 else 3,
@@ -164,6 +180,14 @@ object WidgetResponsiveSizingPolicy {
             WidgetKind.COMBINED -> Metrics(
                 headerHeightDp = scaled(20),
                 weekdayHeaderHeightDp = scaled(12),
+                monthHeadingTextSizeSp = when {
+                    fontScale >= 1.5f -> 13f
+                    fontScale >= 1.3f -> 14f
+                    mode == WidgetLayoutMode.COMPACT -> 16f
+                    else -> 18f
+                },
+                sectionHeadingTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 11f else 12f,
+                weekdayTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 7f else 8f,
                 dateTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 8f else 10f,
                 calendarRowHeightDp = when {
                     fontScale >= 1.5f -> 34
@@ -191,6 +215,10 @@ object WidgetResponsiveSizingPolicy {
     private data class Metrics(
         val headerHeightDp: Int,
         val weekdayHeaderHeightDp: Int = 0,
+        val monthHeadingTextSizeSp: Float = 0f,
+        val sectionHeadingTextSizeSp: Float = 0f,
+        val displayTextSizeSp: Float = 0f,
+        val weekdayTextSizeSp: Float = 0f,
         val dateTextSizeSp: Float = 10f,
         val calendarRowHeightDp: Int = 0,
         val minimumReadableCalendarRowHeightDp: Int = 1,
@@ -246,6 +274,10 @@ data class WidgetLayoutSpec(
     val verticalPaddingDp: Int,
     val headerHeightDp: Int,
     val weekdayHeaderHeightDp: Int,
+    val monthHeadingTextSizeSp: Float,
+    val sectionHeadingTextSizeSp: Float,
+    val displayTextSizeSp: Float,
+    val weekdayTextSizeSp: Float,
     val dateTextSizeSp: Float,
     val calendarRowHeightDp: Int,
     val monthSectionHeightDp: Int,

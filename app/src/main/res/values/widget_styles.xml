@@ -1,14 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.NothingCalendar.MonthWeekday" parent="">
+    <style name="Widget.NothingCalendar.Typography.Display" parent="">
+        <item name="android:fontFamily">@font/doto_variable</item>
+        <item name="android:fontVariationSettings">&quot;wght&quot; 800, &quot;ROND&quot; 100</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_primary</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:textSize">48sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.Heading" parent="">
+        <item name="android:fontFamily">@font/doto_variable</item>
+        <item name="android:fontVariationSettings">&quot;wght&quot; 700, &quot;ROND&quot; 100</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_primary</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.SectionLabel" parent="Widget.NothingCalendar.Typography.Heading">
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.CalendarNumber" parent="">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_primary</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.Weekday" parent="">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_secondary</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">8sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.EventTitle" parent="">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_primary</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.EventMetadata" parent="">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_text_secondary</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">8sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.Overflow" parent="Widget.NothingCalendar.Typography.EventMetadata">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">9sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.Typography.Status" parent="Widget.NothingCalendar.Typography.EventMetadata">
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="Widget.NothingCalendar.MonthWeekday" parent="Widget.NothingCalendar.Typography.Weekday">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
-        <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
-        <item name="android:textColor">@color/widget_text_secondary</item>
-        <item name="android:textSize">7sp</item>
     </style>
 
     <style name="Widget.NothingCalendar.MonthCell" parent="">
@@ -19,53 +82,35 @@
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="Widget.NothingCalendar.MonthDay" parent="">
+    <style name="Widget.NothingCalendar.MonthDay" parent="Widget.NothingCalendar.Typography.CalendarNumber">
         <item name="android:layout_width">18dp</item>
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:autoSizeMaxTextSize">10sp</item>
-        <item name="android:autoSizeMinTextSize">6sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:autoSizeTextType">uniform</item>
         <item name="android:gravity">center</item>
-        <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
         <item name="android:padding">0dp</item>
-        <item name="android:textColor">@color/widget_text_primary</item>
     </style>
 
     <style name="Widget.NothingCalendar.MonthIndicator" parent="">
-        <item name="android:layout_width">3dp</item>
-        <item name="android:layout_height">3dp</item>
+        <item name="android:layout_width">@dimen/widget_event_dot_diameter</item>
+        <item name="android:layout_height">@dimen/widget_event_dot_diameter</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:src">@drawable/widget_month_indicator</item>
         <item name="android:visibility">invisible</item>
     </style>
 
-    <style name="Widget.NothingCalendar.AgendaMeta" parent="">
+    <style name="Widget.NothingCalendar.AgendaMeta" parent="Widget.NothingCalendar.Typography.EventMetadata">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:autoSizeMaxTextSize">9sp</item>
-        <item name="android:autoSizeMinTextSize">7sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:autoSizeTextType">uniform</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
-        <item name="android:textColor">@color/widget_text_secondary</item>
         <item name="android:textSize">8sp</item>
     </style>
 
-    <style name="Widget.NothingCalendar.AgendaTitle" parent="">
+    <style name="Widget.NothingCalendar.AgendaTitle" parent="Widget.NothingCalendar.Typography.EventTitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:autoSizeMaxTextSize">11sp</item>
-        <item name="android:autoSizeMinTextSize">9sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:autoSizeTextType">uniform</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
-        <item name="android:textColor">@color/widget_text_primary</item>
     </style>
 </resources>

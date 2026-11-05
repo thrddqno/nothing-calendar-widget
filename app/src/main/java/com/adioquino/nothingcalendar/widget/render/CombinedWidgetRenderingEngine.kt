@@ -51,7 +51,6 @@ class CombinedWidgetRenderingEngine(
             )
             val spec = model.layout.spec
             val views = RemoteViews(context.packageName, R.layout.widget_combined).apply {
-                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
                 setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
                 setOnClickPendingIntent(R.id.month_title, AppNavigation.calendarPendingIntent(context, now))
                 setTextColor(R.id.agenda_header, palette.primaryText)
@@ -61,7 +60,10 @@ class CombinedWidgetRenderingEngine(
                 month = model.month,
                 primaryTextColor = palette.primaryText,
                 secondaryTextColor = palette.secondaryText,
+                todayForegroundColor = palette.todayForeground,
                 availableWidthDp = size.widthDp,
+                headingTextSizeSp = spec.monthHeadingTextSizeSp,
+                weekdayTextSizeSp = spec.weekdayTextSizeSp,
                 dateTextSizeSp = spec.dateTextSizeSp,
             )
             val agendaRenderer = AgendaSectionRemoteViewsRenderer(context)
@@ -69,7 +71,7 @@ class CombinedWidgetRenderingEngine(
                 agendaRenderer.renderEvents(
                     views = views,
                     model = model.agenda,
-                    backgroundColor = palette.background,
+                    backgroundColor = palette.panelBackground,
                     primaryTextColor = palette.primaryText,
                     secondaryTextColor = palette.secondaryText,
                     maxRows = model.layout.maxAgendaRows,

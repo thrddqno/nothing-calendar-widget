@@ -179,6 +179,40 @@ class WidgetResponsiveSizingPolicyTest {
     }
 
     @Test
+    fun `typography roles follow widget hierarchy`() {
+        val month = WidgetResponsiveSizingPolicy.calculate(month(rows = 5, widthDp = 250))
+        val combined = WidgetResponsiveSizingPolicy.calculate(combined(rows = 5, widthDp = 250))
+        val combinedLargest = WidgetResponsiveSizingPolicy.calculate(
+            combined(rows = 6, widthDp = 250, fontScale = 1.5f),
+        )
+        val today = WidgetResponsiveSizingPolicy.calculate(today())
+
+        assertEquals(16f, month.monthHeadingTextSizeSp)
+        assertEquals(18f, combined.monthHeadingTextSizeSp)
+        assertEquals(13f, combinedLargest.monthHeadingTextSizeSp)
+        assertEquals(12f, combined.sectionHeadingTextSizeSp)
+        assertEquals(48f, today.displayTextSizeSp)
+        assertEquals(11f, today.weekdayTextSizeSp)
+    }
+
+    @Test
+    fun `today display size contracts as system font scale grows`() {
+        val normal = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1f))
+        val medium = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1.15f))
+        val large = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1.3f))
+        val largest = WidgetResponsiveSizingPolicy.calculate(today(fontScale = 1.5f))
+
+        assertEquals(48f, normal.displayTextSizeSp)
+        assertEquals(40f, medium.displayTextSizeSp)
+        assertEquals(34f, large.displayTextSizeSp)
+        assertEquals(30f, largest.displayTextSizeSp)
+        assertTrue(normal.displayTextSizeSp * 1f <= 50f)
+        assertTrue(medium.displayTextSizeSp * 1.15f <= 50f)
+        assertTrue(large.displayTextSizeSp * 1.3f <= 50f)
+        assertTrue(largest.displayTextSizeSp * 1.5f <= 50f)
+    }
+
+    @Test
     fun `today normal width fits three complete rows`() {
         val result = WidgetResponsiveSizingPolicy.calculate(today(eventCount = 5))
 
