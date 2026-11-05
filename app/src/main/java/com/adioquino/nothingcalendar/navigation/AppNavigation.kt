@@ -1,6 +1,7 @@
 package com.adioquino.nothingcalendar.navigation
 
 import android.app.PendingIntent
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
@@ -26,6 +27,26 @@ object AppNavigation {
             context,
             CALENDAR_REQUEST_CODE,
             Intent(Intent.ACTION_VIEW, calendarUri).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
+    fun eventPendingIntent(
+        context: Context,
+        eventId: Long,
+        startsAt: Instant,
+        endsAt: Instant,
+    ): PendingIntent {
+        val eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+        val requestCode = 31 * eventId.hashCode() + startsAt.hashCode()
+        return PendingIntent.getActivity(
+            context,
+            requestCode,
+            Intent(Intent.ACTION_VIEW, eventUri).apply {
+                putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startsAt.toEpochMilli())
+                putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endsAt.toEpochMilli())
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,

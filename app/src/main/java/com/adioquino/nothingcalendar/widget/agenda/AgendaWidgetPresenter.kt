@@ -39,6 +39,16 @@ class AgendaWidgetPresenter(
         },
     )
 
+    fun presentWithCapacity(
+        occurrences: List<WidgetAgendaOccurrence>,
+        now: Instant,
+        capacityResolver: (eligibleEventCount: Int) -> AgendaCapacity,
+    ): AgendaRenderModel = present(
+        occurrences = occurrences,
+        now = now,
+        capacityResolver = capacityResolver,
+    )
+
     private fun present(
         occurrences: List<WidgetAgendaOccurrence>,
         now: Instant,
@@ -63,6 +73,8 @@ class AgendaWidgetPresenter(
                 title = formatted.title,
                 temporalLabel = formatted.temporalLabel,
                 calendarColor = occurrence.calendarColor,
+                startsAt = occurrence.startsAt,
+                endsAt = occurrence.endsAt,
             )
         }
         return AgendaRenderModel(
@@ -87,4 +99,6 @@ data class AgendaRowModel(
     val title: String,
     val temporalLabel: String,
     val calendarColor: Int?,
+    val startsAt: Instant,
+    val endsAt: Instant,
 )

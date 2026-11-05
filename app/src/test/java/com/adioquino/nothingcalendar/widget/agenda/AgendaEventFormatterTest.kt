@@ -32,6 +32,16 @@ class AgendaEventFormatterTest {
     }
 
     @Test
+    fun `optional end time formats same-day range`() {
+        val result = formatter(includeEndTime = true).format(
+            occurrence("2026-11-05T18:05:00Z", "2026-11-05T19:15:00Z"),
+            now,
+        )
+
+        assertEquals("18:05–19:15", result.temporalLabel)
+    }
+
+    @Test
     fun `tomorrow event includes abbreviated weekday`() {
         val result = formatter().format(
             occurrence("2026-11-06T09:00:00Z", "2026-11-06T10:00:00Z"),
@@ -113,11 +123,13 @@ class AgendaEventFormatterTest {
     private fun formatter(
         zoneId: ZoneId = ZoneId.of("UTC"),
         use24HourTime: Boolean = true,
+        includeEndTime: Boolean = false,
     ) = AgendaEventFormatter(
         locale = Locale.US,
         zoneId = zoneId,
         use24HourTime = use24HourTime,
         strings = AgendaFormatStrings("ALL DAY", "NOW", "Untitled event"),
+        includeEndTime = includeEndTime,
     )
 
     private fun occurrence(

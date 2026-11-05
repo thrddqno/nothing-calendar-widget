@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/widget_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="6dp"
+    tools:ignore="Overdraw">
+
+    <LinearLayout
+        android:id="@+id/today_date_section"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="34"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <TextView
+            android:id="@+id/today_month"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.12"
+            android:maxLines="1"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="NOV" />
+
+        <TextView
+            android:id="@+id/today_day"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:autoSizeMaxTextSize="44sp"
+            android:autoSizeMinTextSize="34sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/widget_text_primary"
+            android:textStyle="bold"
+            tools:text="05" />
+
+        <TextView
+            android:id="@+id/today_weekday"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.12"
+            android:maxLines="1"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="THU" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/today_divider"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/widget_text_secondary"
+        android:text="" />
+
+    <LinearLayout
+        android:id="@+id/today_agenda_section"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="65"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/agenda_header"
+            android:layout_width="match_parent"
+            android:layout_height="14dp"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.08"
+            android:maxLines="1"
+            android:text="@string/widget_agenda_header"
+            android:textColor="@color/widget_text_primary"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            tools:ignore="SmallSp" />
+
+        <LinearLayout
+            android:id="@+id/agenda_row_0"
+            android:layout_width="match_parent"
+            android:layout_height="26dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/agenda_accent_0"
+                android:layout_width="3dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="5dp"
+                android:background="@color/widget_text_secondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/agenda_meta_0"
+                    style="@style/Widget.NothingCalendar.AgendaMeta"
+                    tools:text="09:00–10:00" />
+
+                <TextView
+                    android:id="@+id/agenda_title_0"
+                    style="@style/Widget.NothingCalendar.AgendaTitle"
+                    tools:text="Team Sync" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/agenda_row_1"
+            android:layout_width="match_parent"
+            android:layout_height="26dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/agenda_accent_1"
+                android:layout_width="3dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="5dp"
+                android:background="@color/widget_text_secondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/agenda_meta_1"
+                    style="@style/Widget.NothingCalendar.AgendaMeta"
+                    tools:text="09:00–10:00" />
+
+                <TextView
+                    android:id="@+id/agenda_title_1"
+                    style="@style/Widget.NothingCalendar.AgendaTitle"
+                    tools:text="Team Sync" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/agenda_row_2"
+            android:layout_width="match_parent"
+            android:layout_height="26dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/agenda_accent_2"
+                android:layout_width="3dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="5dp"
+                android:background="@color/widget_text_secondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/agenda_meta_2"
+                    style="@style/Widget.NothingCalendar.AgendaMeta"
+                    tools:text="09:00–10:00" />
+
+                <TextView
+                    android:id="@+id/agenda_title_2"
+                    style="@style/Widget.NothingCalendar.AgendaTitle"
+                    tools:text="Team Sync" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/agenda_row_3"
+            android:layout_width="match_parent"
+            android:layout_height="26dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/agenda_accent_3"
+                android:layout_width="3dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="5dp"
+                android:background="@color/widget_text_secondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/agenda_meta_3"
+                    style="@style/Widget.NothingCalendar.AgendaMeta"
+                    tools:text="09:00–10:00" />
+
+                <TextView
+                    android:id="@+id/agenda_title_3"
+                    style="@style/Widget.NothingCalendar.AgendaTitle"
+                    tools:text="Team Sync" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/agenda_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:text="@string/widget_loading_compact"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/agenda_overflow"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:gravity="end|center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:ignore="SmallSp"
+            tools:text="+2" />
+    </LinearLayout>
+</LinearLayout>

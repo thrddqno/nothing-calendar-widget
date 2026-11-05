@@ -9,7 +9,10 @@ import com.adioquino.nothingcalendar.widget.agenda.AgendaWidgetPresenter
 import java.time.ZoneId
 import java.util.Locale
 
-fun createAgendaWidgetPresenter(context: Context): AgendaWidgetPresenter = AgendaWidgetPresenter(
+fun createAgendaWidgetPresenter(
+    context: Context,
+    includeEndTime: Boolean = false,
+): AgendaWidgetPresenter = AgendaWidgetPresenter(
     AgendaEventFormatter(
         locale = Locale.getDefault(),
         zoneId = ZoneId.systemDefault(),
@@ -19,5 +22,6 @@ fun createAgendaWidgetPresenter(context: Context): AgendaWidgetPresenter = Agend
             now = context.getString(R.string.widget_now),
             untitledEvent = context.getString(R.string.widget_untitled_event),
         ),
+        includeEndTime = includeEndTime,
     ),
 )

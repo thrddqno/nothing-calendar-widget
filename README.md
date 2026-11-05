@@ -1,14 +1,15 @@
 # Nothing Calendar
 
-Native Kotlin Android app providing three independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
+Native Kotlin Android app providing four independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 3.4 status
+## Run 3.5 status
 
-Run 3.4 implements all three widgets on the shared calendar pipeline:
+Run 3.5 implements all four widgets on the shared calendar pipeline:
 
 - 2×2 Month Calendar widget
 - 2×2 Upcoming Events widget
 - 4×6 Combined Month + Upcoming widget
+- 4×2 Today + Upcoming widget
 - Calendar permission settings screen
 - Material You dynamic colors with fallback colors
 - Calendar discovery across provider/account types
@@ -38,8 +39,11 @@ Run 3.4 implements all three widgets on the shared calendar pipeline:
 - Deterministic combined sizing that prioritizes the complete month grid
 - Shared RemoteViews month and agenda section renderers
 - Safe calendar-opening fallback from the combined month heading
+- Locale- and time-zone-aware large current-date presentation
+- Width, height, and font-scale-aware horizontal agenda capacity
+- Safe event-specific calendar intents with occurrence timestamps
 
-Month, Upcoming, and Combined render real calendar data. No fabricated events are shown.
+All four widgets render real calendar data. No fabricated events are shown.
 
 ## Requirements
 
@@ -74,9 +78,9 @@ Open **Nothing Calendar**, then grant calendar access. Calendar repository queri
 1. Long-press an empty launcher area.
 2. Open widget picker.
 3. Find **Nothing Calendar**.
-4. Add Month, Upcoming, or Combined independently.
+4. Add Month, Upcoming, Combined, or Today + Upcoming independently.
 
-Launcher grid sizing varies. Metadata requests 2×2, 2×2, and 4×6 target cells respectively.
+Launcher grid sizing varies. Metadata requests 2×2, 2×2, 4×6, and 4×2 target cells respectively.
 
 ## Test
 
@@ -109,13 +113,15 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `AgendaEventFormatter` and `AgendaCapacityPolicy` keep formatting and sizing deterministic.
 - `CombinedWidgetRenderingEngine` stacks both reusable sections from one immutable snapshot.
 - `CombinedLayoutPolicy` reserves the complete month before allocating agenda rows.
+- `TodayAgendaWidgetRenderingEngine` renders the horizontal large-date and agenda layout.
+- `TodayDatePresenter` and `TodayAgendaCapacityPolicy` keep date and sizing logic deterministic.
 
-## Run 3.4 limitations
+## Run 3.5 limitations
 
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI
 - No periodic refresh scheduling
-- Event-specific and date-specific navigation remain prepared for Run 5
+- Full navigation hardening remains prepared for Run 5
 
 ## Recommended next steps
 

@@ -37,6 +37,7 @@ object WidgetUpdateCoordinator {
             WidgetKind.MONTH -> MonthWidgetRenderingEngine(appContext)
             WidgetKind.AGENDA -> AgendaWidgetRenderingEngine(appContext)
             WidgetKind.COMBINED -> CombinedWidgetRenderingEngine(appContext)
+            WidgetKind.TODAY_AGENDA -> TodayAgendaWidgetRenderingEngine(appContext)
         }
         if (appWidgetIds.isEmpty()) {
             pendingResult.finish()

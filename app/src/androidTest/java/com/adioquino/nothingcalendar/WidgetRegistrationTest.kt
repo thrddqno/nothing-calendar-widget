@@ -8,6 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.adioquino.nothingcalendar.widget.agenda.AgendaWidgetProvider
 import com.adioquino.nothingcalendar.widget.combined.CombinedWidgetProvider
 import com.adioquino.nothingcalendar.widget.month.MonthWidgetProvider
+import com.adioquino.nothingcalendar.widget.today.TodayAgendaWidgetProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -24,6 +25,7 @@ class WidgetRegistrationTest {
             MonthWidgetProvider::class.java,
             AgendaWidgetProvider::class.java,
             CombinedWidgetProvider::class.java,
+            TodayAgendaWidgetProvider::class.java,
         )
 
         providerClasses.forEach { providerClass ->
@@ -38,11 +40,11 @@ class WidgetRegistrationTest {
     }
 
     @Test
-    fun launcherDiscoversThreeWidgetProviders() {
+    fun launcherDiscoversFourWidgetProviders() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val providers = AppWidgetManager.getInstance(context).installedProviders
             .filter { it.provider.packageName == context.packageName }
 
-        assertEquals(3, providers.size)
+        assertEquals(4, providers.size)
     }
 }

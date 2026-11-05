@@ -13,6 +13,7 @@ class AgendaEventFormatter(
     private val zoneId: ZoneId,
     private val use24HourTime: Boolean,
     private val strings: AgendaFormatStrings,
+    private val includeEndTime: Boolean = false,
 ) {
     fun format(
         occurrence: WidgetAgendaOccurrence,
@@ -26,7 +27,12 @@ class AgendaEventFormatter(
             temporalLabel = when {
                 occurrence.isAllDay -> formatAllDayDate(eventDate, today)
                 ongoing -> strings.now
-                else -> formatTimedDate(occurrence.startsAt, eventDate, today)
+                else -> formatTimedDate(
+                    startsAt = occurrence.startsAt,
+                    endsAt = occurrence.endsAt,
+                    eventDate = eventDate,
+                    today = today,
+                )
             },
         )
     }
@@ -39,10 +45,17 @@ class AgendaEventFormatter(
 
     private fun formatTimedDate(
         startsAt: Instant,
+        endsAt: Instant,
         eventDate: LocalDate,
         today: LocalDate,
     ): String {
-        val time = startsAt.atZone(zoneId).format(timeFormatter())
+        val start = startsAt.atZone(zoneId)
+        val end = endsAt.atZone(zoneId)
+        val time = if (includeEndTime && start.toLocalDate() == end.toLocalDate()) {
+            "${start.format(timeFormatter())}–${end.format(timeFormatter())}"
+        } else {
+            start.format(timeFormatter())
+        }
         return when (eventDate) {
             today -> time
             today.plusDays(1) -> "${eventDate.weekdayLabel()} $time"

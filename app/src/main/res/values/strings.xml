@@ -8,7 +8,7 @@
     <string name="permission_explanation">Calendar access lets widgets read events stored by Android calendar providers.</string>
     <string name="grant_calendar_permission">Grant calendar access</string>
     <string name="open_app_settings">Open app settings</string>
-    <string name="run_one_note">Run 3.4 completes Month, Upcoming, and Combined widgets.</string>
+    <string name="run_one_note">Run 3.5 completes all four calendar widgets.</string>
     <string name="widget_loading">Loading calendar…</string>
     <string name="widget_permission_required">Permission required</string>
     <string name="widget_no_calendars">No available calendars</string>
@@ -22,6 +22,7 @@
     <string name="widget_now">NOW</string>
     <string name="widget_untitled_event">Untitled event</string>
     <string name="widget_more_events">+%1$d MORE</string>
+    <string name="widget_more_events_compact">+%1$d</string>
     <string name="widget_combined_agenda_header">UPCOMING EVENTS</string>
     <string name="widget_no_calendars_available">No calendars available</string>
     <string name="widget_month_name">Nothing Calendar — Month</string>
@@ -38,4 +39,7 @@
     <string name="widget_combined_description">4×6 month and upcoming events widget</string>
     <string name="widget_combined_placeholder_title">Month + Upcoming</string>
     <string name="widget_combined_placeholder_message">Calendar status</string>
+
+    <string name="widget_today_agenda_name">Nothing Calendar — Today + Upcoming</string>
+    <string name="widget_today_agenda_description">4×2 current date and upcoming events widget</string>
 </resources>

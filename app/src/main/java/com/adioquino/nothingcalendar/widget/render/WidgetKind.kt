@@ -24,4 +24,9 @@ enum class WidgetKind(
         R.string.widget_combined_placeholder_title,
         R.string.widget_combined_placeholder_message,
     ),
+    TODAY_AGENDA(
+        R.layout.widget_today_agenda,
+        R.string.widget_today_agenda_name,
+        R.string.widget_agenda_placeholder_message,
+    ),
 }
