@@ -16,6 +16,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.util.Locale
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -45,26 +46,26 @@ class CombinedWidgetPresenterTest {
     }
 
     @Test
-    fun `six-row month fits complete month four agenda rows and accurate overflow`() {
+    fun `six-row month fits complete month and as many agenda rows as space allows`() {
         val snapshot = snapshot(events = (1L..6L).map { event(it, 12 + it, 13 + it) })
 
         val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 400)
 
         assertEquals(6, result.month.weekCount)
-        assertEquals(4, result.agenda.rows.size)
-        assertEquals(2, result.agenda.hiddenEventCount)
-        assertTrue(result.agenda.showOverflow)
+        assertEquals(6, result.agenda.rows.size)
+        assertEquals(0, result.agenda.hiddenEventCount)
+        assertFalse(result.agenda.showOverflow)
     }
 
     @Test
-    fun `small widget keeps complete six-row month and no partial agenda row`() {
+    fun `small widget keeps complete six-row month and one complete agenda row`() {
         val snapshot = snapshot(events = listOf(event(1, 13, 14)))
 
         val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 250)
 
         assertEquals(6, result.month.weekCount)
-        assertEquals(0, result.agenda.rows.size)
-        assertEquals(1, result.agenda.hiddenEventCount)
+        assertEquals(1, result.agenda.rows.size)
+        assertEquals(0, result.agenda.hiddenEventCount)
     }
 
     @Test

@@ -11,7 +11,7 @@ class TodayAgendaCapacityPolicyTest {
         val result = TodayAgendaCapacityPolicy.calculate(250, 110, 1f, 1)
 
         assertEquals(1, result.visibleEventRows)
-        assertEquals(26, result.eventRowHeightDp)
+        assertEquals(24, result.eventRowHeightDp)
         assertFalse(result.showOverflow)
     }
 
@@ -45,7 +45,8 @@ class TodayAgendaCapacityPolicyTest {
         val result = TodayAgendaCapacityPolicy.calculate(250, 110, 1.3f, 4)
 
         assertTrue(result.compact)
-        assertEquals(2, result.visibleEventRows)
+        assertEquals(1, result.visibleEventRows)
+        assertEquals(3, result.hiddenEventCount)
         assertTrue(result.showOverflow)
     }
 }

@@ -7,6 +7,7 @@ import com.adioquino.nothingcalendar.R
 import com.adioquino.nothingcalendar.navigation.AppNavigation
 import com.adioquino.nothingcalendar.theme.AndroidThemeResolver
 import com.adioquino.nothingcalendar.theme.ThemeResolver
+import com.adioquino.nothingcalendar.widget.agenda.AgendaCapacity
 import com.adioquino.nothingcalendar.widget.presentation.WidgetLoadState
 import java.time.Instant
 
@@ -22,45 +23,73 @@ class AgendaWidgetRenderingEngine(
     ) {
         require(kind == WidgetKind.AGENDA) { "Agenda renderer only supports agenda widgets" }
         val palette = themeResolver.resolve()
-        val views = RemoteViews(context.packageName, R.layout.widget_agenda)
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-        val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
-        views.setInt(R.id.widget_root, "setBackgroundColor", palette.background)
-        views.setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
-        views.setTextColor(R.id.agenda_header, palette.primaryText)
-        val sectionRenderer = AgendaSectionRemoteViewsRenderer(context)
-
         val snapshot = when (state) {
             is WidgetLoadState.Ready -> state.snapshot
             is WidgetLoadState.NoUpcomingEvents -> state.snapshot
             else -> null
         }
-        if (snapshot == null) {
-            sectionRenderer.renderMessage(views, state.message(), palette.secondaryText)
-        } else {
-            val now = Instant.now()
-            val model = createAgendaWidgetPresenter(context).present(
-                occurrences = snapshot.agenda.occurrences,
-                now = now,
-                availableHeightDp = minHeightDp,
+        val sizes = WidgetSizeResolver.resolve(
+            appWidgetManager.getAppWidgetOptions(appWidgetId),
+            WidgetSize(DEFAULT_SIZE_DP, DEFAULT_SIZE_DP),
+        )
+        val now = Instant.now()
+        ResponsiveRemoteViews.update(appWidgetManager, appWidgetId, sizes) { size ->
+            var spec = WidgetResponsiveSizingPolicy.calculate(
+                WidgetSizingInput(
+                    kind = WidgetKind.AGENDA,
+                    availableWidthDp = size.widthDp,
+                    availableHeightDp = size.heightDp,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             )
-            if (model.rows.isEmpty()) {
-                sectionRenderer.renderMessage(
-                    views,
-                    context.getString(R.string.widget_nothing_in_next_12_hours),
-                    palette.secondaryText,
-                )
+            val views = RemoteViews(context.packageName, R.layout.widget_agenda)
+            views.setInt(R.id.widget_root, "setBackgroundColor", palette.background)
+            views.setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
+            views.setTextColor(R.id.agenda_header, palette.primaryText)
+            val sectionRenderer = AgendaSectionRemoteViewsRenderer(context)
+            if (snapshot == null) {
+                sectionRenderer.renderMessage(views, state.message(), palette.secondaryText)
             } else {
-                sectionRenderer.renderEvents(
-                    views,
-                    model,
-                    palette.background,
-                    palette.primaryText,
-                    palette.secondaryText,
-                )
+                val model = createAgendaWidgetPresenter(context).presentWithCapacity(
+                    occurrences = snapshot.agenda.occurrences,
+                    now = now,
+                ) { eligibleCount ->
+                    spec = WidgetResponsiveSizingPolicy.calculate(
+                        WidgetSizingInput(
+                            kind = WidgetKind.AGENDA,
+                            availableWidthDp = size.widthDp,
+                            availableHeightDp = size.heightDp,
+                            fontScale = context.resources.configuration.fontScale,
+                            availableAgendaEventCount = eligibleCount,
+                        ),
+                    )
+                    spec.agendaCapacity.toAgendaCapacity()
+                }
+                if (model.rows.isEmpty()) {
+                    sectionRenderer.renderMessage(
+                        views,
+                        context.getString(R.string.widget_nothing_in_next_12_hours),
+                        palette.secondaryText,
+                    )
+                } else {
+                    sectionRenderer.renderEvents(
+                        views,
+                        model,
+                        palette.background,
+                        palette.primaryText,
+                        palette.secondaryText,
+                    )
+                }
             }
+            ResponsiveRemoteViews.applyLayout(
+                views = views,
+                kind = WidgetKind.AGENDA,
+                spec = spec,
+                density = context.resources.displayMetrics.density,
+                agendaRowIds = AgendaSectionRemoteViewsRenderer.ROW_IDS.take(4).toIntArray(),
+            )
+            views
         }
-        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun WidgetLoadState.message(): String = when (this) {
@@ -71,5 +100,16 @@ class AgendaWidgetRenderingEngine(
         is WidgetLoadState.Ready, is WidgetLoadState.NoUpcomingEvents -> {
             context.getString(R.string.widget_nothing_in_next_12_hours)
         }
+    }
+
+    private fun ResponsiveAgendaCapacity.toAgendaCapacity() =
+        AgendaCapacity(
+            visibleEventRows = visibleEventRows,
+            showOverflow = showOverflow,
+            hiddenEventCount = hiddenEventCount,
+        )
+
+    private companion object {
+        const val DEFAULT_SIZE_DP = 110
     }
 }

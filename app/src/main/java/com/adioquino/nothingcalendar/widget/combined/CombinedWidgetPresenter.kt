@@ -1,5 +1,6 @@
 package com.adioquino.nothingcalendar.widget.combined
 
+import com.adioquino.nothingcalendar.widget.agenda.AgendaCapacity
 import com.adioquino.nothingcalendar.widget.agenda.AgendaRenderModel
 import com.adioquino.nothingcalendar.widget.agenda.AgendaWidgetPresenter
 import com.adioquino.nothingcalendar.widget.presentation.WidgetLoadState
@@ -15,22 +16,35 @@ class CombinedWidgetPresenter(
         loadingSnapshot: WidgetSnapshot,
         now: Instant,
         availableHeightDp: Int,
+        availableWidthDp: Int = 250,
+        fontScale: Float = 1f,
     ): CombinedRenderModel {
         val snapshot = state.snapshotOr(loadingSnapshot)
         val layout = CombinedLayoutPolicy.calculate(
             availableHeightDp = availableHeightDp,
             monthWeekCount = snapshot.month.weekCount,
+            availableWidthDp = availableWidthDp,
+            fontScale = fontScale,
         )
         val status = state.agendaStatus()
         val agenda = if (status == CombinedAgendaStatus.EVENTS) {
-            agendaPresenter.presentWithinHeight(
+            agendaPresenter.presentWithCapacity(
                 occurrences = snapshot.agenda.occurrences,
                 now = now,
-                availableContentHeightDp = layout.agendaContentHeightDp,
-                rowHeightDp = CombinedLayoutPolicy.AGENDA_ROW_HEIGHT_DP,
-                overflowHeightDp = CombinedLayoutPolicy.AGENDA_OVERFLOW_HEIGHT_DP,
-                maxEventRows = CombinedLayoutPolicy.MAX_AGENDA_ROWS,
-            )
+            ) { eligibleCount ->
+                val resolved = CombinedLayoutPolicy.calculate(
+                    availableHeightDp = availableHeightDp,
+                    monthWeekCount = snapshot.month.weekCount,
+                    availableWidthDp = availableWidthDp,
+                    fontScale = fontScale,
+                    eligibleEventCount = eligibleCount,
+                ).spec.agendaCapacity
+                AgendaCapacity(
+                    visibleEventRows = resolved.visibleEventRows,
+                    showOverflow = resolved.showOverflow,
+                    hiddenEventCount = resolved.hiddenEventCount,
+                )
+            }
         } else {
             AgendaRenderModel(
                 rows = emptyList(),

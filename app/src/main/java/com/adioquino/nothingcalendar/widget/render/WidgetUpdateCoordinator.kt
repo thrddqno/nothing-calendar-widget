@@ -24,6 +24,7 @@ object WidgetUpdateCoordinator {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val sequence = AtomicLong()
     private val generations = ConcurrentHashMap<Int, Long>()
+    private val stateCache = WidgetStateCache()
 
     fun update(
         context: Context,
@@ -31,6 +32,37 @@ object WidgetUpdateCoordinator {
         appWidgetIds: IntArray,
         kind: WidgetKind,
         pendingResult: BroadcastReceiver.PendingResult,
+    ) = updateInternal(
+        context = context,
+        appWidgetManager = appWidgetManager,
+        appWidgetIds = appWidgetIds,
+        kind = kind,
+        pendingResult = pendingResult,
+        reuseSnapshot = false,
+    )
+
+    fun resize(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        kind: WidgetKind,
+        pendingResult: BroadcastReceiver.PendingResult,
+    ) = updateInternal(
+        context = context,
+        appWidgetManager = appWidgetManager,
+        appWidgetIds = intArrayOf(appWidgetId),
+        kind = kind,
+        pendingResult = pendingResult,
+        reuseSnapshot = true,
+    )
+
+    private fun updateInternal(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+        kind: WidgetKind,
+        pendingResult: BroadcastReceiver.PendingResult,
+        reuseSnapshot: Boolean,
     ) {
         val appContext = context.applicationContext
         val renderer: WidgetRenderingEngine = when (kind) {
@@ -43,6 +75,19 @@ object WidgetUpdateCoordinator {
             pendingResult.finish()
             return
         }
+        // A cached resize must not cancel an in-flight refresh; that refresh will render with the
+        // new launcher options when it completes. Only loads claim a new generation.
+        val cachedStates = if (reuseSnapshot) appWidgetIds.map(stateCache::get) else emptyList()
+        if (reuseSnapshot && cachedStates.all { it != null }) {
+            appWidgetIds.forEachIndexed { index, appWidgetId ->
+                runCatching {
+                    renderer.render(appWidgetManager, appWidgetId, kind, cachedStates[index]!!)
+                }
+            }
+            pendingResult.finish()
+            return
+        }
+
         val generation = sequence.incrementAndGet()
         appWidgetIds.forEach { appWidgetId ->
             generations[appWidgetId] = generation
@@ -73,6 +118,7 @@ object WidgetUpdateCoordinator {
                             generations[appWidgetId] == generation &&
                             appWidgetManager.getAppWidgetInfo(appWidgetId) != null
                         ) {
+                            stateCache.put(appWidgetId, state)
                             renderer.render(appWidgetManager, appWidgetId, kind, state)
                         }
                     }
@@ -85,6 +131,7 @@ object WidgetUpdateCoordinator {
 
     fun invalidate(appWidgetIds: IntArray) {
         appWidgetIds.forEach(generations::remove)
+        stateCache.invalidate(appWidgetIds)
     }
 
     private fun localeFirstDayOfWeek(): DayOfWeek = when (

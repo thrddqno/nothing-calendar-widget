@@ -32,77 +32,101 @@ class TodayAgendaWidgetRenderingEngine(
             "Today agenda renderer only supports today agenda widgets"
         }
         val palette = themeResolver.resolve()
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-        val widthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, DEFAULT_WIDTH_DP)
-        val heightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, DEFAULT_HEIGHT_DP)
+        val sizes = WidgetSizeResolver.resolve(
+            appWidgetManager.getAppWidgetOptions(appWidgetId),
+            WidgetSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP),
+        )
         val now = Instant.now()
         val zoneId = ZoneId.systemDefault()
+        val fontScale = context.resources.configuration.fontScale
         val loadingSnapshot = WidgetSnapshotFactory.empty(
             now = now,
             zoneId = zoneId,
             firstDayOfWeek = localeFirstDayOfWeek(),
         )
-        val model = TodayAgendaWidgetPresenter(
-            datePresenter = TodayDatePresenter(Locale.getDefault(), zoneId),
-            agendaPresenter = createAgendaWidgetPresenter(context, includeEndTime = true),
-        ).present(
-            state = state,
-            loadingSnapshot = loadingSnapshot,
-            now = now,
-            availableWidthDp = widthDp,
-            availableHeightDp = heightDp,
-            fontScale = context.resources.configuration.fontScale,
-        )
         val calendarIntent = AppNavigation.calendarPendingIntent(context, now)
-        val views = RemoteViews(context.packageName, R.layout.widget_today_agenda).apply {
-            setInt(R.id.widget_root, "setBackgroundColor", palette.background)
-            setInt(R.id.today_divider, "setBackgroundColor", palette.secondaryText)
-            setTextViewText(R.id.today_month, model.date.month)
-            setTextViewText(R.id.today_day, model.date.day)
-            setTextViewText(R.id.today_weekday, model.date.weekday)
-            setTextColor(R.id.today_month, palette.secondaryText)
-            setTextColor(R.id.today_day, palette.primaryText)
-            setTextColor(R.id.today_weekday, palette.secondaryText)
-            setTextColor(R.id.agenda_header, palette.primaryText)
-            setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
-            setOnClickPendingIntent(R.id.today_date_section, calendarIntent)
-            setOnClickPendingIntent(R.id.agenda_header, calendarIntent)
-        }
-        val agendaRenderer = AgendaSectionRemoteViewsRenderer(context)
-        if (model.agendaStatus == TodayAgendaStatus.EVENTS) {
-            agendaRenderer.renderEvents(
-                views = views,
-                model = model.agenda,
-                backgroundColor = palette.background,
-                primaryTextColor = palette.primaryText,
-                secondaryTextColor = palette.secondaryText,
+        ResponsiveRemoteViews.update(appWidgetManager, appWidgetId, sizes) { size ->
+            val model = TodayAgendaWidgetPresenter(
+                datePresenter = TodayDatePresenter(Locale.getDefault(), zoneId),
+                agendaPresenter = createAgendaWidgetPresenter(context, includeEndTime = true),
+            ).present(
+                state = state,
+                loadingSnapshot = loadingSnapshot,
+                now = now,
+                availableWidthDp = size.widthDp,
+                availableHeightDp = size.heightDp,
+                fontScale = fontScale,
             )
-            model.agenda.rows.forEachIndexed { index, row ->
-                views.setOnClickPendingIntent(
-                    EVENT_ROW_IDS[index],
-                    AppNavigation.eventPendingIntent(
-                        context = context,
-                        eventId = row.eventId,
-                        startsAt = row.startsAt,
-                        endsAt = row.endsAt,
-                    ),
+            val spec = WidgetResponsiveSizingPolicy.calculate(
+                WidgetSizingInput(
+                    kind = WidgetKind.TODAY_AGENDA,
+                    availableWidthDp = size.widthDp,
+                    availableHeightDp = size.heightDp,
+                    fontScale = fontScale,
+                    availableAgendaEventCount = model.agenda.totalEligibleEvents,
+                ),
+            )
+            val views = RemoteViews(context.packageName, R.layout.widget_today_agenda).apply {
+                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
+                setInt(R.id.today_divider, "setBackgroundColor", palette.secondaryText)
+                setTextViewText(R.id.today_month, model.date.month)
+                setTextViewText(R.id.today_day, model.date.day)
+                setTextViewText(R.id.today_weekday, model.date.weekday)
+                setTextColor(R.id.today_month, palette.secondaryText)
+                setTextColor(R.id.today_day, palette.primaryText)
+                setTextColor(R.id.today_weekday, palette.secondaryText)
+                setTextColor(R.id.agenda_header, palette.primaryText)
+                setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
+                setOnClickPendingIntent(R.id.today_date_section, calendarIntent)
+                setOnClickPendingIntent(R.id.agenda_header, calendarIntent)
+            }
+            val agendaRenderer = AgendaSectionRemoteViewsRenderer(context)
+            if (model.agendaStatus == TodayAgendaStatus.EVENTS) {
+                agendaRenderer.renderEvents(
+                    views = views,
+                    model = model.agenda,
+                    backgroundColor = palette.background,
+                    primaryTextColor = palette.primaryText,
+                    secondaryTextColor = palette.secondaryText,
+                    maxRows = EVENT_ROW_IDS.size,
+                )
+                model.agenda.rows.forEachIndexed { index, row ->
+                    views.setOnClickPendingIntent(
+                        EVENT_ROW_IDS[index],
+                        AppNavigation.eventPendingIntent(
+                            context = context,
+                            eventId = row.eventId,
+                            startsAt = row.startsAt,
+                            endsAt = row.endsAt,
+                        ),
+                    )
+                }
+                if (model.agenda.showOverflow) {
+                    views.setTextViewText(
+                        R.id.agenda_overflow,
+                        context.getString(
+                            R.string.widget_more_events_compact,
+                            model.agenda.hiddenEventCount,
+                        ),
+                    )
+                    views.setOnClickPendingIntent(R.id.agenda_overflow, calendarIntent)
+                }
+            } else {
+                agendaRenderer.renderMessage(
+                    views = views,
+                    message = model.agendaStatus.message(),
+                    textColor = palette.secondaryText,
                 )
             }
-            if (model.agenda.showOverflow) {
-                views.setTextViewText(
-                    R.id.agenda_overflow,
-                    context.getString(R.string.widget_more_events_compact, model.agenda.hiddenEventCount),
-                )
-                views.setOnClickPendingIntent(R.id.agenda_overflow, calendarIntent)
-            }
-        } else {
-            agendaRenderer.renderMessage(
+            ResponsiveRemoteViews.applyLayout(
                 views = views,
-                message = model.agendaStatus.message(),
-                textColor = palette.secondaryText,
+                kind = WidgetKind.TODAY_AGENDA,
+                spec = spec,
+                density = context.resources.displayMetrics.density,
+                agendaRowIds = EVENT_ROW_IDS,
             )
+            views
         }
-        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun TodayAgendaStatus.message(): String = when (this) {

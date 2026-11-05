@@ -30,23 +30,40 @@ class MonthWidgetRenderingEngine(
         require(kind == WidgetKind.MONTH) { "Month renderer only supports month widgets" }
         val palette = themeResolver.resolve()
         val month = state.monthState()
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-        val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110)
-        val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
-        val views = RemoteViews(context.packageName, R.layout.widget_month).apply {
-            setInt(R.id.widget_root, "setBackgroundColor", palette.background)
-            setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
-            renderStatus(this, state, palette.secondaryText)
-            MonthSectionRemoteViewsRenderer().render(
-                views = this,
-                month = month,
-                primaryTextColor = palette.primaryText,
-                secondaryTextColor = palette.secondaryText,
-                availableWidthDp = minWidthDp,
-                dateTextSizeSp = if (minHeightDp < COMPACT_HEIGHT_DP) 8f else 10f,
+        val sizes = WidgetSizeResolver.resolve(
+            appWidgetManager.getAppWidgetOptions(appWidgetId),
+            WidgetSize(DEFAULT_SIZE_DP, DEFAULT_SIZE_DP),
+        )
+        ResponsiveRemoteViews.update(appWidgetManager, appWidgetId, sizes) { size ->
+            val spec = WidgetResponsiveSizingPolicy.calculate(
+                WidgetSizingInput(
+                    kind = WidgetKind.MONTH,
+                    availableWidthDp = size.widthDp,
+                    availableHeightDp = size.heightDp,
+                    fontScale = context.resources.configuration.fontScale,
+                    monthRowCount = month.weekCount,
+                ),
             )
+            RemoteViews(context.packageName, R.layout.widget_month).apply {
+                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
+                setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
+                renderStatus(this, state, palette.secondaryText)
+                MonthSectionRemoteViewsRenderer().render(
+                    views = this,
+                    month = month,
+                    primaryTextColor = palette.primaryText,
+                    secondaryTextColor = palette.secondaryText,
+                    availableWidthDp = size.widthDp,
+                    dateTextSizeSp = spec.dateTextSizeSp,
+                )
+                ResponsiveRemoteViews.applyLayout(
+                    views = this,
+                    kind = WidgetKind.MONTH,
+                    spec = spec,
+                    density = context.resources.displayMetrics.density,
+                )
+            }
         }
-        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun WidgetLoadState.monthState(): WidgetMonthState = when (this) {
@@ -62,7 +79,11 @@ class MonthWidgetRenderingEngine(
         ).month
     }
 
-    private fun renderStatus(views: RemoteViews, state: WidgetLoadState, textColor: Int) {
+    private fun renderStatus(
+        views: RemoteViews,
+        state: WidgetLoadState,
+        textColor: Int,
+    ) {
         val statusText = when (state) {
             WidgetLoadState.Loading -> context.getString(R.string.widget_loading_compact)
             is WidgetLoadState.PermissionDenied -> context.getString(R.string.widget_permission_required)
@@ -70,7 +91,10 @@ class MonthWidgetRenderingEngine(
             is WidgetLoadState.ProviderFailure -> context.getString(R.string.widget_events_unavailable)
             is WidgetLoadState.Ready, is WidgetLoadState.NoUpcomingEvents -> null
         }
-        views.setViewVisibility(R.id.month_status, if (statusText == null) View.GONE else View.VISIBLE)
+        views.setViewVisibility(
+            R.id.month_status,
+            if (statusText == null) View.GONE else View.VISIBLE,
+        )
         if (statusText != null) {
             views.setTextViewText(R.id.month_status, statusText)
             views.setTextColor(R.id.month_status, textColor)
@@ -85,6 +109,6 @@ class MonthWidgetRenderingEngine(
     }
 
     private companion object {
-        const val COMPACT_HEIGHT_DP = 125
+        const val DEFAULT_SIZE_DP = 110
     }
 }

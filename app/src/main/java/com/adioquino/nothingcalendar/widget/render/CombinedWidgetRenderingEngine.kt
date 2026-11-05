@@ -29,53 +29,70 @@ class CombinedWidgetRenderingEngine(
     ) {
         require(kind == WidgetKind.COMBINED) { "Combined renderer only supports combined widgets" }
         val palette = themeResolver.resolve()
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-        val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250)
-        val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 400)
+        val sizes = WidgetSizeResolver.resolve(
+            appWidgetManager.getAppWidgetOptions(appWidgetId),
+            WidgetSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP),
+        )
         val now = Instant.now()
         val loadingSnapshot = WidgetSnapshotFactory.empty(
             now = now,
             zoneId = ZoneId.systemDefault(),
             firstDayOfWeek = localeFirstDayOfWeek(),
         )
-        val model = CombinedWidgetPresenter(createAgendaWidgetPresenter(context)).present(
-            state = state,
-            loadingSnapshot = loadingSnapshot,
-            now = now,
-            availableHeightDp = minHeightDp,
-        )
-        val views = RemoteViews(context.packageName, R.layout.widget_combined).apply {
-            setInt(R.id.widget_root, "setBackgroundColor", palette.background)
-            setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
-            setOnClickPendingIntent(R.id.month_title, AppNavigation.calendarPendingIntent(context, now))
-            setTextColor(R.id.agenda_header, palette.primaryText)
-            setInt(R.id.combined_divider, "setBackgroundColor", palette.secondaryText)
-        }
-        MonthSectionRemoteViewsRenderer().render(
-            views = views,
-            month = model.month,
-            primaryTextColor = palette.primaryText,
-            secondaryTextColor = palette.secondaryText,
-            availableWidthDp = minWidthDp,
-            dateTextSizeSp = COMBINED_DATE_TEXT_SIZE_SP,
-        )
-        val agendaRenderer = AgendaSectionRemoteViewsRenderer(context)
-        if (model.agendaStatus == CombinedAgendaStatus.EVENTS) {
-            agendaRenderer.renderEvents(
+        ResponsiveRemoteViews.update(appWidgetManager, appWidgetId, sizes) { size ->
+            val fontScale = context.resources.configuration.fontScale
+            val model = CombinedWidgetPresenter(createAgendaWidgetPresenter(context)).present(
+                state = state,
+                loadingSnapshot = loadingSnapshot,
+                now = now,
+                availableHeightDp = size.heightDp,
+                availableWidthDp = size.widthDp,
+                fontScale = fontScale,
+            )
+            val spec = model.layout.spec
+            val views = RemoteViews(context.packageName, R.layout.widget_combined).apply {
+                setInt(R.id.widget_root, "setBackgroundColor", palette.background)
+                setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
+                setOnClickPendingIntent(R.id.month_title, AppNavigation.calendarPendingIntent(context, now))
+                setTextColor(R.id.agenda_header, palette.primaryText)
+                setInt(R.id.combined_divider, "setBackgroundColor", palette.secondaryText)
+            }
+            MonthSectionRemoteViewsRenderer().render(
                 views = views,
-                model = model.agenda,
-                backgroundColor = palette.background,
+                month = model.month,
                 primaryTextColor = palette.primaryText,
                 secondaryTextColor = palette.secondaryText,
+                availableWidthDp = size.widthDp,
+                dateTextSizeSp = spec.dateTextSizeSp,
             )
-        } else {
-            agendaRenderer.renderMessage(
+            val agendaRenderer = AgendaSectionRemoteViewsRenderer(context)
+            if (model.agendaStatus == CombinedAgendaStatus.EVENTS) {
+                agendaRenderer.renderEvents(
+                    views = views,
+                    model = model.agenda,
+                    backgroundColor = palette.background,
+                    primaryTextColor = palette.primaryText,
+                    secondaryTextColor = palette.secondaryText,
+                    maxRows = model.layout.maxAgendaRows,
+                )
+            } else {
+                agendaRenderer.renderMessage(
+                    views = views,
+                    message = model.agendaStatus.message(),
+                    textColor = palette.secondaryText,
+                    maxRows = model.layout.maxAgendaRows,
+                )
+            }
+            ResponsiveRemoteViews.applyLayout(
                 views = views,
-                message = model.agendaStatus.message(),
-                textColor = palette.secondaryText,
+                kind = WidgetKind.COMBINED,
+                spec = spec,
+                density = context.resources.displayMetrics.density,
+                monthWeekRowIds = MonthSectionRemoteViewsRenderer.WEEK_ROW_IDS,
+                agendaRowIds = AgendaSectionRemoteViewsRenderer.ROW_IDS,
             )
+            views
         }
-        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun CombinedAgendaStatus.message(): String = when (this) {
@@ -97,6 +114,7 @@ class CombinedWidgetRenderingEngine(
     }
 
     private companion object {
-        const val COMBINED_DATE_TEXT_SIZE_SP = 10f
+        const val DEFAULT_WIDTH_DP = 250
+        const val DEFAULT_HEIGHT_DP = 400
     }
 }

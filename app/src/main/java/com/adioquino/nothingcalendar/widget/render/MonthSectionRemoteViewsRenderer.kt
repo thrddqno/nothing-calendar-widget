@@ -3,6 +3,9 @@ package com.adioquino.nothingcalendar.widget.render
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import com.adioquino.nothingcalendar.R
 import com.adioquino.nothingcalendar.widget.presentation.WidgetMonthState
 import java.time.format.DateTimeFormatter
@@ -45,12 +48,20 @@ class MonthSectionRemoteViewsRenderer(
         }
         DAY_VIEW_IDS.forEachIndexed { index, viewId ->
             val visibleCell = month.cells.getOrNull(index)?.takeIf { it.belongsToDisplayedMonth }
-            val text = when {
-                visibleCell == null -> ""
-                visibleCell.indicators.count > 0 -> "${visibleCell.date.dayOfMonth}•"
-                else -> visibleCell.date.dayOfMonth.toString()
+            val text = visibleCell?.let { cell ->
+                MonthDayCellFormatter.format(cell.date.dayOfMonth, cell.indicators.count > 0)
+            }.orEmpty()
+            val styledText = SpannableString(text).apply {
+                if (text.contains('\n')) {
+                    setSpan(
+                        RelativeSizeSpan(INDICATOR_TEXT_SCALE),
+                        text.lastIndex,
+                        text.length,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                    )
+                }
             }
-            views.setTextViewText(viewId, text)
+            views.setTextViewText(viewId, styledText)
             views.setTextColor(viewId, textColor)
             views.setTextViewTextSize(viewId, TypedValue.COMPLEX_UNIT_SP, dateTextSizeSp)
             views.setInt(
@@ -70,9 +81,10 @@ class MonthSectionRemoteViewsRenderer(
         return month.displayedMonth.format(DateTimeFormatter.ofPattern(pattern, locale))
     }
 
-    private companion object {
+    companion object {
         const val MEDIUM_WIDTH_DP = 140
         const val WIDE_WIDTH_DP = 180
+        const val INDICATOR_TEXT_SCALE = 0.55f
 
         val WEEKDAY_VIEW_IDS = intArrayOf(
             R.id.month_weekday_0,

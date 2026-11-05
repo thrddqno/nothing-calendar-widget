@@ -33,10 +33,10 @@ abstract class BaseWidgetProvider(
         appWidgetId: Int,
         newOptions: Bundle,
     ) {
-        WidgetUpdateCoordinator.update(
+        WidgetUpdateCoordinator.resize(
             context = context,
             appWidgetManager = appWidgetManager,
-            appWidgetIds = intArrayOf(appWidgetId),
+            appWidgetId = appWidgetId,
             kind = kind,
             pendingResult = goAsync(),
         )

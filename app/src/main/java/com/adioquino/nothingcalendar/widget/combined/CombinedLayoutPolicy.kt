@@ -1,36 +1,41 @@
 package com.adioquino.nothingcalendar.widget.combined
 
 import com.adioquino.nothingcalendar.widget.presentation.WidgetSnapshotFactory
+import com.adioquino.nothingcalendar.widget.render.WidgetKind
+import com.adioquino.nothingcalendar.widget.render.WidgetLayoutSpec
+import com.adioquino.nothingcalendar.widget.render.WidgetResponsiveSizingPolicy
+import com.adioquino.nothingcalendar.widget.render.WidgetSizingInput
 
 object CombinedLayoutPolicy {
-    const val ROOT_VERTICAL_PADDING_DP = 12
-    const val MONTH_HEADER_HEIGHT_DP = 24
-    const val WEEKDAY_HEADER_HEIGHT_DP = 16
-    const val MONTH_WEEK_HEIGHT_DP = 24
-    const val DIVIDER_SECTION_HEIGHT_DP = 13
-    const val AGENDA_HEADER_HEIGHT_DP = 20
-    const val AGENDA_ROW_HEIGHT_DP = 34
-    const val AGENDA_OVERFLOW_HEIGHT_DP = 14
-    const val MAX_AGENDA_ROWS = 4
-
     fun calculate(
         availableHeightDp: Int,
         monthWeekCount: Int,
+        availableWidthDp: Int = 250,
+        fontScale: Float = 1f,
+        eligibleEventCount: Int = 0,
     ): CombinedLayoutCapacity {
         require(availableHeightDp >= 0) { "Available height must not be negative" }
         require(monthWeekCount in WidgetSnapshotFactory.MIN_WEEK_COUNT..WidgetSnapshotFactory.MAX_WEEK_COUNT) {
             "Month must contain four to six weeks"
         }
-        val monthSectionHeight = MONTH_HEADER_HEIGHT_DP +
-            WEEKDAY_HEADER_HEIGHT_DP +
-            monthWeekCount * MONTH_WEEK_HEIGHT_DP
-        val fixedHeight = ROOT_VERTICAL_PADDING_DP +
-            monthSectionHeight +
-            DIVIDER_SECTION_HEIGHT_DP +
-            AGENDA_HEADER_HEIGHT_DP
+        val spec = WidgetResponsiveSizingPolicy.calculate(
+            WidgetSizingInput(
+                kind = WidgetKind.COMBINED,
+                availableWidthDp = availableWidthDp,
+                availableHeightDp = availableHeightDp,
+                fontScale = fontScale,
+                monthRowCount = monthWeekCount,
+                availableAgendaEventCount = eligibleEventCount,
+            ),
+        )
         return CombinedLayoutCapacity(
-            monthSectionHeightDp = monthSectionHeight,
-            agendaContentHeightDp = (availableHeightDp - fixedHeight).coerceAtLeast(0),
+            monthSectionHeightDp = spec.monthSectionHeightDp,
+            agendaContentHeightDp = spec.agendaContentHeightDp,
+            calendarRowHeightDp = spec.calendarRowHeightDp,
+            agendaRowHeightDp = spec.agendaRowHeightDp,
+            agendaOverflowHeightDp = spec.overflowHeightDp,
+            maxAgendaRows = spec.maxAgendaRows,
+            spec = spec,
         )
     }
 }
@@ -38,4 +43,9 @@ object CombinedLayoutPolicy {
 data class CombinedLayoutCapacity(
     val monthSectionHeightDp: Int,
     val agendaContentHeightDp: Int,
+    val calendarRowHeightDp: Int,
+    val agendaRowHeightDp: Int,
+    val agendaOverflowHeightDp: Int,
+    val maxAgendaRows: Int,
+    val spec: WidgetLayoutSpec,
 )

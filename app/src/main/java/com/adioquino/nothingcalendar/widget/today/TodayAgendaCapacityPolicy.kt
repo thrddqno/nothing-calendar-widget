@@ -1,17 +1,12 @@
 package com.adioquino.nothingcalendar.widget.today
 
 import com.adioquino.nothingcalendar.widget.agenda.AgendaCapacity
+import com.adioquino.nothingcalendar.widget.render.WidgetKind
+import com.adioquino.nothingcalendar.widget.render.WidgetLayoutMode
+import com.adioquino.nothingcalendar.widget.render.WidgetResponsiveSizingPolicy
+import com.adioquino.nothingcalendar.widget.render.WidgetSizingInput
 
 object TodayAgendaCapacityPolicy {
-    const val ROOT_VERTICAL_PADDING_DP = 12
-    const val AGENDA_HEADER_HEIGHT_DP = 14
-    const val EVENT_ROW_HEIGHT_DP = 26
-    const val OVERFLOW_HEIGHT_DP = 12
-    const val MAX_NORMAL_ROWS = 3
-    const val MAX_COMPACT_ROWS = 2
-    const val COMPACT_WIDTH_DP = 240
-    const val LARGE_FONT_SCALE = 1.15f
-
     fun calculate(
         availableWidthDp: Int,
         availableHeightDp: Int,
@@ -23,21 +18,22 @@ object TodayAgendaCapacityPolicy {
         require(fontScale > 0f) { "Font scale must be positive" }
         require(eligibleEventCount >= 0) { "Event count must not be negative" }
 
-        val compact = availableWidthDp < COMPACT_WIDTH_DP || fontScale > LARGE_FONT_SCALE
-        val maxRows = if (compact) MAX_COMPACT_ROWS else MAX_NORMAL_ROWS
-        val contentHeight = (
-            availableHeightDp - ROOT_VERTICAL_PADDING_DP - AGENDA_HEADER_HEIGHT_DP
-        ).coerceAtLeast(0)
-        val rowCapacity = (contentHeight / EVENT_ROW_HEIGHT_DP).coerceIn(0, maxRows)
-        val visibleRows = minOf(rowCapacity, eligibleEventCount)
-        val hiddenCount = (eligibleEventCount - visibleRows).coerceAtLeast(0)
-        val remainingHeight = contentHeight - visibleRows * EVENT_ROW_HEIGHT_DP
+        val spec = WidgetResponsiveSizingPolicy.calculate(
+            WidgetSizingInput(
+                kind = WidgetKind.TODAY_AGENDA,
+                availableWidthDp = availableWidthDp,
+                availableHeightDp = availableHeightDp,
+                fontScale = fontScale,
+                availableAgendaEventCount = eligibleEventCount,
+            ),
+        )
+        val capacity = spec.agendaCapacity
         return TodayAgendaCapacity(
-            visibleEventRows = visibleRows,
-            eventRowHeightDp = EVENT_ROW_HEIGHT_DP,
-            showOverflow = hiddenCount > 0 && remainingHeight >= OVERFLOW_HEIGHT_DP,
-            hiddenEventCount = hiddenCount,
-            compact = compact,
+            visibleEventRows = capacity.visibleEventRows,
+            eventRowHeightDp = spec.agendaRowHeightDp,
+            showOverflow = capacity.showOverflow,
+            hiddenEventCount = capacity.hiddenEventCount,
+            compact = spec.mode == WidgetLayoutMode.COMPACT,
         )
     }
 }

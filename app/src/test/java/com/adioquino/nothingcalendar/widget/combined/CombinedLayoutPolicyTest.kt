@@ -8,31 +8,31 @@ class CombinedLayoutPolicyTest {
     fun `four-row month reserves only four complete week rows`() {
         val result = CombinedLayoutPolicy.calculate(400, 4)
 
-        assertEquals(136, result.monthSectionHeightDp)
-        assertEquals(219, result.agendaContentHeightDp)
+        assertEquals(120, result.monthSectionHeightDp)
+        assertEquals(245, result.agendaContentHeightDp)
     }
 
     @Test
     fun `five-row month reserves five complete week rows`() {
         val result = CombinedLayoutPolicy.calculate(400, 5)
 
-        assertEquals(160, result.monthSectionHeightDp)
-        assertEquals(195, result.agendaContentHeightDp)
+        assertEquals(142, result.monthSectionHeightDp)
+        assertEquals(223, result.agendaContentHeightDp)
     }
 
     @Test
     fun `six-row month reserves six complete week rows`() {
         val result = CombinedLayoutPolicy.calculate(400, 6)
 
-        assertEquals(184, result.monthSectionHeightDp)
-        assertEquals(171, result.agendaContentHeightDp)
+        assertEquals(164, result.monthSectionHeightDp)
+        assertEquals(201, result.agendaContentHeightDp)
     }
 
     @Test
     fun `small dimensions preserve month before agenda space`() {
         val result = CombinedLayoutPolicy.calculate(250, 6)
 
-        assertEquals(184, result.monthSectionHeightDp)
-        assertEquals(21, result.agendaContentHeightDp)
+        assertEquals(164, result.monthSectionHeightDp)
+        assertEquals(51, result.agendaContentHeightDp)
     }
 }
