@@ -45,13 +45,30 @@ class WidgetResponsiveSizingPolicyTest {
         assertEquals(6, result.verticalPaddingDp)
         assertEquals(20, result.headerHeightDp)
         assertEquals(12, result.weekdayHeaderHeightDp)
-        assertEquals(22, result.calendarRowHeightDp)
-        assertEquals(164, result.monthSectionHeightDp)
-        assertEquals(198, result.agendaContentHeightDp)
+        assertEquals(20, result.calendarRowHeightDp)
+        assertEquals(152, result.monthSectionHeightDp)
+        assertEquals(210, result.agendaContentHeightDp)
         assertEquals(6, result.sectionSpacingDp)
         assertEquals(8, result.agendaPanelHorizontalInsetDp)
         assertEquals(2, result.agendaPanelVerticalInsetDp)
         assertEquals(32, result.agendaRowHeightDp)
+        assertEquals(6, result.agendaCapacity.visibleEventRows)
+        assertEquals(4, result.agendaCapacity.hiddenEventCount)
+        assertTrue(result.agendaCapacity.showOverflow)
+    }
+
+    @Test
+    fun `combined large font uses fifth row when remaining height permits`() {
+        val result = WidgetResponsiveSizingPolicy.calculate(
+            combined(
+                rows = 6,
+                widthDp = 250,
+                heightDp = 400,
+                fontScale = 1.15f,
+                eventCount = 10,
+            ),
+        )
+
         assertEquals(5, result.agendaCapacity.visibleEventRows)
         assertEquals(5, result.agendaCapacity.hiddenEventCount)
         assertTrue(result.agendaCapacity.showOverflow)

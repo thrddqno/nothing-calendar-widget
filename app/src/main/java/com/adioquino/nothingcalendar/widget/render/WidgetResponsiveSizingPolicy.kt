@@ -31,28 +31,27 @@ object WidgetResponsiveSizingPolicy {
                     .coerceAtLeast(0) / monthRows.toDouble(),
             ).toInt().coerceAtLeast(1)
             WidgetKind.COMBINED -> {
-                val desiredAgendaRows = minOf(
-                    input.availableAgendaEventCount,
-                    if (monthRows <= 5) 3 else 2,
+                val fixedHeight = verticalPadding * 2 +
+                    metrics.headerHeightDp + metrics.weekdayHeaderHeightDp +
+                    metrics.sectionSpacingDp + metrics.agendaPanelVerticalInsetDp * 2 +
+                    metrics.agendaHeaderHeightDp
+                val minimumRowHeight = minOf(
+                    metrics.minimumReadableCalendarRowHeightDp,
+                    metrics.calendarRowHeightDp,
                 )
-                val minimumAgendaContentHeight = if (input.availableAgendaEventCount == 0) {
-                    metrics.overflowHeightDp
-                } else {
-                    desiredAgendaRows * metrics.agendaRowHeightDp +
-                        if (input.availableAgendaEventCount > desiredAgendaRows) {
-                            metrics.overflowHeightDp
-                        } else {
-                            0
-                        }
-                }
-                val availableGridHeight = height - verticalPadding * 2 -
-                    metrics.headerHeightDp - metrics.weekdayHeaderHeightDp -
-                    metrics.sectionSpacingDp - metrics.agendaPanelVerticalInsetDp * 2 -
-                    metrics.agendaHeaderHeightDp - minimumAgendaContentHeight
-                val fittingRowHeight = floor(
-                    availableGridHeight.coerceAtLeast(0) / monthRows.toDouble(),
-                ).toInt().coerceAtLeast(metrics.minimumReadableCalendarRowHeightDp)
-                minOf(metrics.calendarRowHeightDp, fittingRowHeight)
+                (metrics.calendarRowHeightDp downTo minimumRowHeight).maxWith(
+                    compareBy<Int> { rowHeight ->
+                        calculateAgendaCapacity(
+                            contentHeightDp = (
+                                height - fixedHeight - rowHeight * monthRows
+                            ).coerceAtLeast(0),
+                            eventCount = input.availableAgendaEventCount,
+                            rowHeightDp = metrics.agendaRowHeightDp,
+                            overflowHeightDp = metrics.overflowHeightDp,
+                            maxRows = metrics.maxAgendaRows,
+                        ).visibleEventRows
+                    }.thenBy { it },
+                )
             }
             else -> 0
         }

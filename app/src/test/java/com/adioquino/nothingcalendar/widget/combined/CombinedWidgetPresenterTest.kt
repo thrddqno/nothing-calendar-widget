@@ -58,6 +58,17 @@ class CombinedWidgetPresenterTest {
     }
 
     @Test
+    fun `expanded widget uses six rows before overflow`() {
+        val snapshot = snapshot(events = (1L..10L).map { event(it, 12 + it, 13 + it) })
+
+        val result = presenter.present(WidgetLoadState.Ready(snapshot), snapshot(), now, 400)
+
+        assertEquals(6, result.agenda.rows.size)
+        assertEquals(4, result.agenda.hiddenEventCount)
+        assertTrue(result.agenda.showOverflow)
+    }
+
+    @Test
     fun `default 4x4 widget keeps complete six-row month and one complete agenda row`() {
         val snapshot = snapshot(events = listOf(event(1, 13, 14)))
 
