@@ -2,7 +2,7 @@
 <resources>
     <style name="Widget.NothingCalendar.Typography.Display" parent="">
         <item name="android:fontFamily">@font/doto_variable</item>
-        <item name="android:fontVariationSettings">&quot;wght&quot; 800, &quot;ROND&quot; 100</item>
+        <item name="android:fontVariationSettings">\"wght\" 800, \"ROND\" 100</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/widget_text_primary</item>
         <item name="android:textFontWeight">800</item>
@@ -12,7 +12,7 @@
 
     <style name="Widget.NothingCalendar.Typography.Heading" parent="">
         <item name="android:fontFamily">@font/doto_variable</item>
-        <item name="android:fontVariationSettings">&quot;wght&quot; 700, &quot;ROND&quot; 100</item>
+        <item name="android:fontVariationSettings">\"wght\" 700, \"ROND\" 100</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/widget_text_primary</item>
         <item name="android:textFontWeight">700</item>
