@@ -24,6 +24,8 @@ internal class WidgetStateCache {
     fun put(appWidgetId: Int, state: WidgetLoadState) {
         if (state is WidgetLoadState.Ready || state is WidgetLoadState.NoUpcomingEvents) {
             states[appWidgetId] = state
+        } else {
+            states.remove(appWidgetId)
         }
     }
 

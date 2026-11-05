@@ -107,7 +107,6 @@ class WidgetDataLoaderTest {
         val repository = FakeCalendarRepository(
             calendarsResult = CalendarReadResult.Success(listOf(calendar)),
             eventsResult = CalendarReadResult.Success(listOf(event)),
-            upcomingResult = CalendarReadResult.Success(listOf(event)),
         )
 
         val result = loader(repository).load() as WidgetLoadState.Ready
@@ -119,10 +118,101 @@ class WidgetDataLoaderTest {
             result.snapshot.month.cells.single { it.date.toString() == "2026-05-10" }.indicators.count,
         )
         assertEquals(1, repository.calendarCalls)
-        assertEquals(2, repository.eventCalls)
-        assertEquals(now, repository.eventRanges[1].startsAt)
-        assertEquals(now.plus(Duration.ofHours(12)), repository.eventRanges[1].endsAt)
-        assertEquals(listOf(setOf(1L), setOf(1L)), repository.queriedCalendarIds)
+        assertEquals(1, repository.eventCalls)
+        assertTrue(!repository.eventRanges.single().startsAt.isAfter(now))
+        assertTrue(!repository.eventRanges.single().endsAt.isBefore(now.plus(Duration.ofHours(12))))
+        assertEquals(listOf(setOf(1L)), repository.queriedCalendarIds)
+    }
+
+    @Test
+    fun `successive refreshes reflect created modified and deleted events`() = runBlocking {
+        val repository = FakeCalendarRepository(
+            calendarsResult = CalendarReadResult.Success(listOf(calendar)),
+        )
+        val loader = loader(repository)
+
+        assertTrue(loader.load() is WidgetLoadState.NoUpcomingEvents)
+
+        repository.eventsResult = CalendarReadResult.Success(
+            listOf(event("2026-05-10T13:00:00Z", "2026-05-10T14:00:00Z", "Created")),
+        )
+        val created = loader.load() as WidgetLoadState.Ready
+        assertEquals("Created", created.snapshot.agenda.occurrences.single().title)
+
+        repository.eventsResult = CalendarReadResult.Success(
+            listOf(event("2026-05-10T13:00:00Z", "2026-05-10T14:00:00Z", "Modified")),
+        )
+        val modified = loader.load() as WidgetLoadState.Ready
+        assertEquals("Modified", modified.snapshot.agenda.occurrences.single().title)
+
+        repository.eventsResult = CalendarReadResult.Success(emptyList())
+        assertTrue(loader.load() is WidgetLoadState.NoUpcomingEvents)
+    }
+
+    @Test
+    fun `provider failure recovers on later refresh`() = runBlocking {
+        val repository = FakeCalendarRepository(
+            calendarsResult = CalendarReadResult.Failure(CalendarReadFailure.PROVIDER_UNAVAILABLE),
+        )
+        val loader = loader(repository)
+
+        assertTrue(loader.load() is WidgetLoadState.ProviderFailure)
+
+        repository.calendarsResult = CalendarReadResult.Success(listOf(calendar))
+        repository.eventsResult = CalendarReadResult.Success(
+            listOf(event("2026-05-10T13:00:00Z", "2026-05-10T14:00:00Z")),
+        )
+
+        assertTrue(loader.load() is WidgetLoadState.Ready)
+    }
+
+    @Test
+    fun `later refresh removes completed event and admits event entering window`() = runBlocking {
+        val endingSoon = event(
+            "2026-05-10T11:00:00Z",
+            "2026-05-10T13:00:00Z",
+            "Ending soon",
+        )
+        val enteringLater = event(
+            "2026-05-11T01:00:00Z",
+            "2026-05-11T02:00:00Z",
+            "Entering later",
+        )
+        val repository = FakeCalendarRepository(
+            calendarsResult = CalendarReadResult.Success(listOf(calendar)),
+            eventsResult = CalendarReadResult.Success(listOf(enteringLater, endingSoon)),
+        )
+
+        val initial = loader(repository).load() as WidgetLoadState.Ready
+        assertEquals(listOf("Ending soon"), initial.snapshot.agenda.occurrences.map { it.title })
+
+        val later = loader(
+            repository,
+            clock = Clock.fixed(now.plus(Duration.ofHours(2)), ZoneOffset.UTC),
+        ).load() as WidgetLoadState.Ready
+        assertEquals(listOf("Entering later"), later.snapshot.agenda.occurrences.map { it.title })
+    }
+
+    @Test
+    fun `calendar visibility and selection changes apply on next refresh`() = runBlocking {
+        val second = calendar.copy(id = 2, name = "Second")
+        val hidden = calendar.copy(id = 3, name = "Hidden", isVisible = false)
+        val settings = FakeSettingsRepository(selectedIds = setOf(2L))
+        val repository = FakeCalendarRepository(
+            calendarsResult = CalendarReadResult.Success(listOf(calendar, second, hidden)),
+        )
+        val loader = loader(repository, settingsRepository = settings)
+
+        loader.load()
+        assertEquals(setOf(2L), repository.queriedCalendarIds.last())
+
+        settings.setSelectedCalendarIds(setOf(1L))
+        loader.load()
+        assertEquals(setOf(1L), repository.queriedCalendarIds.last())
+
+        settings.useDefaultCalendarSelection()
+        loader.load()
+        assertEquals(setOf(1L, 2L), repository.queriedCalendarIds.last())
     }
 
     @Test
@@ -197,11 +287,11 @@ class WidgetDataLoaderTest {
         ioDispatcher = ioDispatcher,
     )
 
-    private fun event(start: String, end: String) = CalendarEvent(
+    private fun event(start: String, end: String, title: String = "Real test occurrence") = CalendarEvent(
         eventId = 10,
         originalEventId = 5,
         calendarId = 1,
-        title = "Real test occurrence",
+        title = title,
         startsAt = Instant.parse(start),
         endsAt = Instant.parse(end),
         isAllDay = false,
@@ -210,11 +300,9 @@ class WidgetDataLoaderTest {
     )
 
     private class FakeCalendarRepository(
-        private val calendarsResult: CalendarReadResult<List<DeviceCalendar>> =
+        @Volatile var calendarsResult: CalendarReadResult<List<DeviceCalendar>> =
             CalendarReadResult.Success(emptyList()),
-        private val eventsResult: CalendarReadResult<List<CalendarEvent>> =
-            CalendarReadResult.Success(emptyList()),
-        private val upcomingResult: CalendarReadResult<List<CalendarEvent>> =
+        @Volatile var eventsResult: CalendarReadResult<List<CalendarEvent>> =
             CalendarReadResult.Success(emptyList()),
     ) : CalendarRepository {
         @Volatile var calendarCalls = 0
@@ -246,7 +334,7 @@ class WidgetDataLoaderTest {
             eventRanges += range
             queriedCalendarIds += calendarIds
             queryThreads += Thread.currentThread().name
-            return if (eventCalls == 1) eventsResult else upcomingResult
+            return eventsResult
         }
 
         override suspend fun upcomingEvents(
@@ -254,7 +342,7 @@ class WidgetDataLoaderTest {
             lookahead: Duration,
         ): CalendarReadResult<List<CalendarEvent>> {
             queryThreads += Thread.currentThread().name
-            return upcomingResult
+            return eventsResult
         }
 
         override suspend fun monthIndicators(

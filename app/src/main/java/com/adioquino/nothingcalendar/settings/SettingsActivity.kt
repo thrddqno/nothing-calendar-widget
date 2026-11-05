@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.adioquino.nothingcalendar.R
+import com.adioquino.nothingcalendar.widget.render.WidgetRefreshRequester
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var permissionStatus: TextView
@@ -59,6 +60,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updatePermissionUi() {
         val granted = hasCalendarPermission()
+        refreshWidgetsIfPermissionChanged(granted)
         permissionStatus.setText(
             if (granted) R.string.permission_granted else R.string.permission_not_granted,
         )
@@ -77,6 +79,15 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun refreshWidgetsIfPermissionChanged(granted: Boolean) {
+        val preferences = getPreferences(MODE_PRIVATE)
+        val hadPreviousState = preferences.contains(LAST_PERMISSION_GRANTED)
+        val permissionChanged = hadPreviousState &&
+            preferences.getBoolean(LAST_PERMISSION_GRANTED, false) != granted
+        preferences.edit { putBoolean(LAST_PERMISSION_GRANTED, granted) }
+        if (permissionChanged) WidgetRefreshRequester.refreshAll(applicationContext)
+    }
+
     private fun hasCalendarPermission(): Boolean = ContextCompat.checkSelfPermission(
         this,
         Manifest.permission.READ_CALENDAR,
@@ -93,5 +104,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private companion object {
         const val PERMISSION_REQUESTED = "calendar_permission_requested"
+        const val LAST_PERMISSION_GRANTED = "last_permission_granted"
     }
 }

@@ -2,13 +2,13 @@
 
 Native Kotlin Android app providing four independent home-screen widgets inspired by Apple Calendar layouts and Nothing OS visual language.
 
-## Run 3.5.1 status
+## Run 3.7 status
 
-Run 3.5.1 implements all four widgets on the shared calendar pipeline:
+Run 3.7 hardens all four widgets on the shared calendar pipeline:
 
 - 2×2 Month Calendar widget
 - 2×2 Upcoming Events widget
-- 4×6 Combined Month + Upcoming widget
+- 4×4 Combined Month + Upcoming widget
 - 4×2 Today + Upcoming widget
 - Calendar permission settings screen
 - Material You dynamic colors with fallback colors
@@ -30,13 +30,13 @@ Run 3.5.1 implements all four widgets on the shared calendar pipeline:
 - Compact today highlight and neutral per-date event markers
 - Width-aware abbreviated/full month heading
 - Calendar remains usable when permission or provider data is unavailable
-- Responsive one-to-four-row upcoming-event capacity
+- Responsive complete-row upcoming-event capacity
 - Locale/device-zone 12-hour or 24-hour event labels
 - Ongoing, all-day, tomorrow, and later-date labels
 - Accurate overflow counts and calendar-color accent bars
 - Safe untitled-event and empty/error states
 - Vertically stacked complete month and upcoming-events sections
-- Deterministic combined sizing that prioritizes the complete month grid
+- Deterministic 4×4 combined sizing with a nested rounded agenda panel
 - Shared RemoteViews month and agenda section renderers
 - Safe calendar-opening fallback from the combined month heading
 - Locale- and time-zone-aware large current-date presentation
@@ -45,6 +45,9 @@ Run 3.5.1 implements all four widgets on the shared calendar pipeline:
 - Shared rolling 12-hour agenda eligibility across all agenda widgets
 - Exact overflow counts limited to undisplayed events inside that window
 - Explicit 12-hour AM/PM event presentation
+- Per-widget snapshot isolation and current-month resize reuse
+- Permission-safe cache invalidation
+- Shared cross-widget ordering, deduplication, and eligibility behavior
 
 All four widgets render real calendar data. No fabricated events are shown.
 
@@ -83,21 +86,34 @@ Open **Nothing Calendar**, then grant calendar access. Calendar repository queri
 3. Find **Nothing Calendar**.
 4. Add Month, Upcoming, Combined, or Today + Upcoming independently.
 
-Launcher grid sizing varies. Metadata requests 2×2, 2×2, 4×6, and 4×2 target cells respectively.
+Launcher grid sizing varies. Metadata requests 2×2, 2×2, 4×4, and 4×2 target cells respectively.
+
+## Calendar access and refresh behavior
+
+Nothing Calendar requests read-only `READ_CALENDAR` access. It never creates, modifies, or deletes calendar data.
+
+Widgets refresh when Android delivers an AppWidget update, when a widget is placed, and when a data refresh is otherwise requested by the existing widget lifecycle. Layout-only resize reuses a valid current-month snapshot and re-evaluates the rolling 12-hour window against the current clock without another CalendarContract query.
+
+Permission changes observed by the settings screen request an explicit refresh for all existing widget instances. There is currently no polling service, periodic worker, or CalendarContract content observer. External event edits, calendar visibility changes, locale changes, and timezone changes may require the next system widget update or widget re-addition before fresh provider data appears. Active provider-change refresh and navigation hardening remains deferred to Run 5.
 
 ## Test
 
-Run unit tests and lint:
+Run local verification:
 
 ```bash
-./gradlew testDebugUnitTest lintDebug
+./gradlew testDebugUnitTest
+./gradlew lintDebug
+./gradlew assembleDebug
+./gradlew assembleDebugAndroidTest
 ```
 
-Run instrumented registration tests on connected device/emulator:
+Run instrumentation tests only with a connected device or emulator:
 
 ```bash
 ./gradlew connectedDebugAndroidTest
 ```
+
+Compiling the Android test APK does not execute instrumentation tests. Validate all four widgets on the target launcher after installation, including resize and font-scale behavior.
 
 ## Architecture
 
@@ -108,7 +124,7 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `CalendarEventProcessor` handles deterministic sorting, deduplication, date spans, and month grouping.
 - `CalendarSelectionResolver` distinguishes default selection from an explicit empty selection.
 - `CalendarDataModule.repository(context)` constructs the production repository.
-- `WidgetDataLoader` builds one shared snapshot from repository and DataStore state.
+- `WidgetDataLoader` builds one shared snapshot from one selected-calendar occurrence query and DataStore state.
 - `WidgetSnapshotFactory` performs pure month-grid and agenda transformations.
 - `WidgetUpdateCoordinator` runs provider loads asynchronously and rejects stale/deleted widget updates.
 - `MonthWidgetRenderingEngine` renders the compact month using RemoteViews only.
@@ -120,16 +136,17 @@ Source packages separate calendar data/domain, each widget provider, rendering, 
 - `TodayDatePresenter` and `TodayAgendaCapacityPolicy` keep date and sizing logic deterministic.
 - `AgendaWindowPolicy` applies half-open interval overlap before row capacity.
 
-## Run 3.5.1 limitations
+## Known limitations
 
 - No calendar-selection UI yet; persistence API is ready for future UI
 - No widget configuration UI
-- No periodic refresh scheduling
-- Full navigation hardening remains prepared for Run 5
+- No active CalendarContract change observer or periodic refresh scheduling
+- Calendar-provider, locale, and timezone refresh triggers remain Run 5 work
+- Event-specific navigation exists only where currently wired; full fallback hardening remains Run 5 work
+- Pixel-level Nothing Launcher validation requires a connected Nothing device
 
 ## Recommended next steps
 
-1. Add full Nothing Dynamic/Translucent styling.
-2. Add event-specific navigation.
-3. Add calendar-selection settings UI.
-4. Add refresh triggers for calendar changes, time, locale, and timezone.
+1. Apply Nothing OS styling in Run 4.
+2. Add refresh triggers and full navigation hardening in Run 5.
+3. Add calendar-selection UI.

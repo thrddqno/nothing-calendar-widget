@@ -3,6 +3,7 @@ package com.adioquino.nothingcalendar.widget.render
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
+import com.adioquino.nothingcalendar.calendar.data.AndroidCalendarPermissionChecker
 import com.adioquino.nothingcalendar.calendar.data.CalendarReadFailure
 import com.adioquino.nothingcalendar.widget.presentation.WidgetDataModule
 import com.adioquino.nothingcalendar.widget.presentation.WidgetLoadState
@@ -79,12 +80,17 @@ object WidgetUpdateCoordinator {
         // new launcher options when it completes. Only loads claim a new generation.
         val now = Instant.now()
         val zoneId = ZoneId.systemDefault()
-        val cachedStates = if (reuseSnapshot) {
+        val canReuseSnapshot = reuseSnapshot &&
+            AndroidCalendarPermissionChecker(appContext).canReadCalendar()
+        if (reuseSnapshot && !canReuseSnapshot) {
+            stateCache.invalidate(appWidgetIds)
+        }
+        val cachedStates = if (canReuseSnapshot) {
             appWidgetIds.map { stateCache.getValid(it, now, zoneId) }
         } else {
             emptyList()
         }
-        if (reuseSnapshot && cachedStates.all { it != null }) {
+        if (canReuseSnapshot && cachedStates.all { it != null }) {
             appWidgetIds.forEachIndexed { index, appWidgetId ->
                 runCatching {
                     renderer.render(appWidgetManager, appWidgetId, kind, cachedStates[index]!!)

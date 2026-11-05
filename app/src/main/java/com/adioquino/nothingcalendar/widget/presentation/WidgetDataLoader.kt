@@ -87,9 +87,12 @@ class WidgetDataLoader(
         val visibleRange = WidgetSnapshotFactory.visibleDateRange(month, firstDayOfWeek)
         val eventRange = CalendarQueryRange(
             visibleRange.start.atStartOfDay(zoneId).toInstant(),
-            visibleRange.endExclusive.atStartOfDay(zoneId).toInstant(),
+            maxOf(
+                visibleRange.endExclusive.atStartOfDay(zoneId).toInstant(),
+                now.plus(agendaLookahead),
+            ),
         )
-        val monthEvents = when (val result = calendarRepository.events(eventRange, selectedIds)) {
+        val events = when (val result = calendarRepository.events(eventRange, selectedIds)) {
             is CalendarReadResult.Success -> result.value
             CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied(emptySnapshot)
             is CalendarReadResult.Failure -> {
@@ -97,21 +100,14 @@ class WidgetDataLoader(
             }
         }
         val agendaEnd = now.plus(agendaLookahead)
-        val agendaRange = CalendarQueryRange(now, agendaEnd)
-        val agendaEvents = when (val result = calendarRepository.events(agendaRange, selectedIds)) {
-            is CalendarReadResult.Success -> CalendarEventProcessor.upcoming(
-                events = result.value,
-                nowEpochMillis = now.toEpochMilli(),
-                rangeEndEpochMillis = agendaEnd.toEpochMilli(),
-                limit = Int.MAX_VALUE,
-            )
-            CalendarReadResult.PermissionDenied -> return WidgetLoadState.PermissionDenied(emptySnapshot)
-            is CalendarReadResult.Failure -> {
-                return WidgetLoadState.ProviderFailure(result.reason, emptySnapshot)
-            }
-        }
+        val agendaEvents = CalendarEventProcessor.upcoming(
+            events = events,
+            nowEpochMillis = now.toEpochMilli(),
+            rangeEndEpochMillis = agendaEnd.toEpochMilli(),
+            limit = Int.MAX_VALUE,
+        )
         val indicators = CalendarEventProcessor.dateIndicators(
-            events = monthEvents,
+            events = events,
             firstDate = visibleRange.start,
             endDateExclusive = visibleRange.endExclusive,
             zoneId = zoneId,

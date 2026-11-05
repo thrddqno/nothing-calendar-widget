@@ -58,6 +58,29 @@ class WidgetStateCacheTest {
     }
 
     @Test
+    fun `permission denial evicts previously cached private snapshot`() {
+        val cache = WidgetStateCache()
+        cache.put(7, WidgetLoadState.Ready(snapshot))
+
+        cache.put(7, WidgetLoadState.PermissionDenied(snapshot))
+
+        assertNull(cache.get(7))
+    }
+
+    @Test
+    fun `provider failure evicts stale cached snapshot`() {
+        val cache = WidgetStateCache()
+        cache.put(7, WidgetLoadState.Ready(snapshot))
+
+        cache.put(
+            7,
+            WidgetLoadState.ProviderFailure(CalendarReadFailure.PROVIDER_UNAVAILABLE, snapshot),
+        )
+
+        assertNull(cache.get(7))
+    }
+
+    @Test
     fun `deleting one widget keeps other widget snapshots`() {
         val cache = WidgetStateCache()
         cache.put(1, WidgetLoadState.Ready(snapshot))
