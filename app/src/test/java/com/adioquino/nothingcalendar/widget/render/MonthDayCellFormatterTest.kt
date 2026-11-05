@@ -7,14 +7,14 @@ import org.junit.Test
 class MonthDayCellFormatterTest {
     @Test
     fun `date without events renders only the number`() {
-        assertEquals("1", MonthDayCellFormatter.format(1, hasIndicator = false))
-        assertEquals("31", MonthDayCellFormatter.format(31, hasIndicator = false))
+        assertEquals(MonthDayCellContent("1", false), MonthDayCellFormatter.format(1, false))
+        assertEquals(MonthDayCellContent("31", false), MonthDayCellFormatter.format(31, false))
     }
 
     @Test
-    fun `event indicator is placed on a second centered line`() {
-        assertEquals("1\n•", MonthDayCellFormatter.format(1, hasIndicator = true))
-        assertEquals("30\n•", MonthDayCellFormatter.format(30, hasIndicator = true))
+    fun `indicator visibility is independent from date text`() {
+        assertEquals(MonthDayCellContent("1", true), MonthDayCellFormatter.format(1, true))
+        assertEquals(MonthDayCellContent("30", true), MonthDayCellFormatter.format(30, true))
     }
 
     @Test

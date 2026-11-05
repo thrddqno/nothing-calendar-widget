@@ -89,6 +89,8 @@ class TodayAgendaWidgetRenderingEngine(
                     primaryTextColor = palette.primaryText,
                     secondaryTextColor = palette.secondaryText,
                     maxRows = EVENT_ROW_IDS.size,
+                    eventTitleTextSizeSp = spec.eventTitleTextSizeSp,
+                    eventMetaTextSizeSp = spec.eventMetaTextSizeSp,
                 )
                 model.agenda.rows.forEachIndexed { index, row ->
                     views.setOnClickPendingIntent(

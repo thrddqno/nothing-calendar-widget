@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.os.Build
 import android.util.SizeF
 import android.util.TypedValue
+import android.view.View
 import android.widget.RemoteViews
 
 object ResponsiveRemoteViews {
@@ -33,8 +34,38 @@ object ResponsiveRemoteViews {
         monthWeekRowIds: IntArray = intArrayOf(),
         agendaRowIds: IntArray = intArrayOf(),
     ) {
-        val paddingPx = (spec.outerPaddingDp * density).toInt()
-        views.setViewPadding(com.adioquino.nothingcalendar.R.id.widget_root, paddingPx, paddingPx, paddingPx, paddingPx)
+        val horizontalPaddingPx = (spec.horizontalPaddingDp * density).toInt()
+        val verticalPaddingPx = (spec.verticalPaddingDp * density).toInt()
+        views.setViewPadding(
+            com.adioquino.nothingcalendar.R.id.widget_root,
+            horizontalPaddingPx,
+            verticalPaddingPx,
+            horizontalPaddingPx,
+            verticalPaddingPx,
+        )
+        if (kind == WidgetKind.MONTH || kind == WidgetKind.COMBINED) {
+            views.setViewVisibility(
+                com.adioquino.nothingcalendar.R.id.month_weekdays,
+                if (spec.showWeekdayHeader) View.VISIBLE else View.GONE,
+            )
+        }
+        if (kind != WidgetKind.MONTH) {
+            views.setViewVisibility(
+                com.adioquino.nothingcalendar.R.id.agenda_header,
+                if (spec.showAgendaHeader) View.VISIBLE else View.GONE,
+            )
+        }
+        if (kind == WidgetKind.COMBINED) {
+            val horizontalInsetPx = (spec.agendaPanelHorizontalInsetDp * density).toInt()
+            val verticalInsetPx = (spec.agendaPanelVerticalInsetDp * density).toInt()
+            views.setViewPadding(
+                com.adioquino.nothingcalendar.R.id.agenda_panel,
+                horizontalInsetPx,
+                verticalInsetPx,
+                horizontalInsetPx,
+                verticalInsetPx,
+            )
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
 
         if (kind == WidgetKind.COMBINED) {

@@ -1,6 +1,7 @@
 package com.adioquino.nothingcalendar.widget.render
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.adioquino.nothingcalendar.R
@@ -25,6 +26,8 @@ class AgendaSectionRemoteViewsRenderer(
         primaryTextColor: Int,
         secondaryTextColor: Int,
         maxRows: Int = 4,
+        eventTitleTextSizeSp: Float = 11f,
+        eventMetaTextSizeSp: Float = 8f,
     ) {
         views.setViewVisibility(R.id.agenda_empty_state, View.GONE)
         ROW_IDS.take(maxRows).forEachIndexed { index, rowId ->
@@ -33,6 +36,16 @@ class AgendaSectionRemoteViewsRenderer(
             if (row != null) {
                 views.setTextViewText(TITLE_IDS[index], row.title)
                 views.setTextViewText(META_IDS[index], row.temporalLabel)
+                views.setTextViewTextSize(
+                    TITLE_IDS[index],
+                    TypedValue.COMPLEX_UNIT_SP,
+                    eventTitleTextSizeSp,
+                )
+                views.setTextViewTextSize(
+                    META_IDS[index],
+                    TypedValue.COMPLEX_UNIT_SP,
+                    eventMetaTextSizeSp,
+                )
                 views.setTextColor(TITLE_IDS[index], primaryTextColor)
                 views.setTextColor(META_IDS[index], secondaryTextColor)
                 views.setInt(

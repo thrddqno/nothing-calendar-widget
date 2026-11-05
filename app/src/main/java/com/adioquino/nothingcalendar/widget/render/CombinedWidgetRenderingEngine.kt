@@ -55,7 +55,6 @@ class CombinedWidgetRenderingEngine(
                 setOnClickPendingIntent(R.id.widget_root, AppNavigation.settingsPendingIntent(context))
                 setOnClickPendingIntent(R.id.month_title, AppNavigation.calendarPendingIntent(context, now))
                 setTextColor(R.id.agenda_header, palette.primaryText)
-                setInt(R.id.combined_divider, "setBackgroundColor", palette.secondaryText)
             }
             MonthSectionRemoteViewsRenderer().render(
                 views = views,
@@ -74,6 +73,8 @@ class CombinedWidgetRenderingEngine(
                     primaryTextColor = palette.primaryText,
                     secondaryTextColor = palette.secondaryText,
                     maxRows = model.layout.maxAgendaRows,
+                    eventTitleTextSizeSp = spec.eventTitleTextSizeSp,
+                    eventMetaTextSizeSp = spec.eventMetaTextSizeSp,
                 )
             } else {
                 agendaRenderer.renderMessage(

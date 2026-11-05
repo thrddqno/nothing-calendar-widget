@@ -5,6 +5,7 @@ import com.adioquino.nothingcalendar.widget.presentation.WidgetLoadState
 import com.adioquino.nothingcalendar.widget.presentation.WidgetSnapshotFactory
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZoneId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -79,5 +80,31 @@ class WidgetStateCacheTest {
 
         assertSame(first, cache.get(10))
         assertSame(second, cache.get(11))
+    }
+
+    @Test
+    fun `snapshot from a previous month is not reused for resize`() {
+        val cache = WidgetStateCache()
+        cache.put(7, WidgetLoadState.Ready(snapshot))
+
+        val nextMonth = YearMonth.from(snapshot.generatedAt.atZone(ZoneId.of("UTC")))
+            .plusMonths(1)
+            .atDay(1)
+            .atStartOfDay(ZoneId.of("UTC"))
+            .toInstant()
+
+        assertNull(cache.getValid(7, nextMonth, ZoneId.of("UTC")))
+    }
+
+    @Test
+    fun `current-month snapshot is valid for resize`() {
+        val cache = WidgetStateCache()
+        val state = WidgetLoadState.Ready(snapshot)
+        cache.put(7, state)
+
+        assertSame(
+            state,
+            cache.getValid(7, snapshot.generatedAt.plusSeconds(60), ZoneId.of("UTC")),
+        )
     }
 }

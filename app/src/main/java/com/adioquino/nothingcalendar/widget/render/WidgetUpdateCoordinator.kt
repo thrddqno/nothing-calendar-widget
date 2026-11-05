@@ -77,7 +77,13 @@ object WidgetUpdateCoordinator {
         }
         // A cached resize must not cancel an in-flight refresh; that refresh will render with the
         // new launcher options when it completes. Only loads claim a new generation.
-        val cachedStates = if (reuseSnapshot) appWidgetIds.map(stateCache::get) else emptyList()
+        val now = Instant.now()
+        val zoneId = ZoneId.systemDefault()
+        val cachedStates = if (reuseSnapshot) {
+            appWidgetIds.map { stateCache.getValid(it, now, zoneId) }
+        } else {
+            emptyList()
+        }
         if (reuseSnapshot && cachedStates.all { it != null }) {
             appWidgetIds.forEachIndexed { index, appWidgetId ->
                 runCatching {

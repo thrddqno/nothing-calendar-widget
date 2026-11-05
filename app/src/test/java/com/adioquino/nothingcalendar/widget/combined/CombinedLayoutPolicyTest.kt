@@ -9,7 +9,7 @@ class CombinedLayoutPolicyTest {
         val result = CombinedLayoutPolicy.calculate(400, 4)
 
         assertEquals(120, result.monthSectionHeightDp)
-        assertEquals(245, result.agendaContentHeightDp)
+        assertEquals(242, result.agendaContentHeightDp)
     }
 
     @Test
@@ -17,7 +17,7 @@ class CombinedLayoutPolicyTest {
         val result = CombinedLayoutPolicy.calculate(400, 5)
 
         assertEquals(142, result.monthSectionHeightDp)
-        assertEquals(223, result.agendaContentHeightDp)
+        assertEquals(220, result.agendaContentHeightDp)
     }
 
     @Test
@@ -25,7 +25,7 @@ class CombinedLayoutPolicyTest {
         val result = CombinedLayoutPolicy.calculate(400, 6)
 
         assertEquals(164, result.monthSectionHeightDp)
-        assertEquals(201, result.agendaContentHeightDp)
+        assertEquals(198, result.agendaContentHeightDp)
     }
 
     @Test
@@ -33,6 +33,6 @@ class CombinedLayoutPolicyTest {
         val result = CombinedLayoutPolicy.calculate(250, 6)
 
         assertEquals(164, result.monthSectionHeightDp)
-        assertEquals(51, result.agendaContentHeightDp)
+        assertEquals(48, result.agendaContentHeightDp)
     }
 }

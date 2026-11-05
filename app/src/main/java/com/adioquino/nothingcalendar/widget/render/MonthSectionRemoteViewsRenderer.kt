@@ -3,9 +3,6 @@ package com.adioquino.nothingcalendar.widget.render
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.RelativeSizeSpan
 import com.adioquino.nothingcalendar.R
 import com.adioquino.nothingcalendar.widget.presentation.WidgetMonthState
 import java.time.format.DateTimeFormatter
@@ -48,22 +45,16 @@ class MonthSectionRemoteViewsRenderer(
         }
         DAY_VIEW_IDS.forEachIndexed { index, viewId ->
             val visibleCell = month.cells.getOrNull(index)?.takeIf { it.belongsToDisplayedMonth }
-            val text = visibleCell?.let { cell ->
+            val content = visibleCell?.let { cell ->
                 MonthDayCellFormatter.format(cell.date.dayOfMonth, cell.indicators.count > 0)
-            }.orEmpty()
-            val styledText = SpannableString(text).apply {
-                if (text.contains('\n')) {
-                    setSpan(
-                        RelativeSizeSpan(INDICATOR_TEXT_SCALE),
-                        text.lastIndex,
-                        text.length,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-                    )
-                }
             }
-            views.setTextViewText(viewId, styledText)
+            views.setTextViewText(viewId, content?.dateText.orEmpty())
             views.setTextColor(viewId, textColor)
             views.setTextViewTextSize(viewId, TypedValue.COMPLEX_UNIT_SP, dateTextSizeSp)
+            views.setViewVisibility(
+                INDICATOR_VIEW_IDS[index],
+                if (content?.indicatorVisible == true) View.VISIBLE else View.INVISIBLE,
+            )
             views.setInt(
                 viewId,
                 "setBackgroundResource",
@@ -84,7 +75,6 @@ class MonthSectionRemoteViewsRenderer(
     companion object {
         const val MEDIUM_WIDTH_DP = 140
         const val WIDE_WIDTH_DP = 180
-        const val INDICATOR_TEXT_SCALE = 0.55f
 
         val WEEKDAY_VIEW_IDS = intArrayOf(
             R.id.month_weekday_0,
@@ -117,6 +107,23 @@ class MonthSectionRemoteViewsRenderer(
             R.id.month_day_32, R.id.month_day_33, R.id.month_day_34, R.id.month_day_35,
             R.id.month_day_36, R.id.month_day_37, R.id.month_day_38, R.id.month_day_39,
             R.id.month_day_40, R.id.month_day_41,
+        )
+
+        val INDICATOR_VIEW_IDS = intArrayOf(
+            R.id.month_indicator_0, R.id.month_indicator_1, R.id.month_indicator_2,
+            R.id.month_indicator_3, R.id.month_indicator_4, R.id.month_indicator_5,
+            R.id.month_indicator_6, R.id.month_indicator_7, R.id.month_indicator_8,
+            R.id.month_indicator_9, R.id.month_indicator_10, R.id.month_indicator_11,
+            R.id.month_indicator_12, R.id.month_indicator_13, R.id.month_indicator_14,
+            R.id.month_indicator_15, R.id.month_indicator_16, R.id.month_indicator_17,
+            R.id.month_indicator_18, R.id.month_indicator_19, R.id.month_indicator_20,
+            R.id.month_indicator_21, R.id.month_indicator_22, R.id.month_indicator_23,
+            R.id.month_indicator_24, R.id.month_indicator_25, R.id.month_indicator_26,
+            R.id.month_indicator_27, R.id.month_indicator_28, R.id.month_indicator_29,
+            R.id.month_indicator_30, R.id.month_indicator_31, R.id.month_indicator_32,
+            R.id.month_indicator_33, R.id.month_indicator_34, R.id.month_indicator_35,
+            R.id.month_indicator_36, R.id.month_indicator_37, R.id.month_indicator_38,
+            R.id.month_indicator_39, R.id.month_indicator_40, R.id.month_indicator_41,
         )
     }
 }

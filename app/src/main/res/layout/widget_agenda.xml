@@ -12,7 +12,8 @@
     <TextView
         android:id="@+id/agenda_header"
         android:layout_width="match_parent"
-        android:layout_height="18dp"
+        android:layout_height="wrap_content"
+        android:minHeight="18dp"
         android:fontFamily="sans"
         android:gravity="center_vertical"
         android:includeFontPadding="false"
@@ -186,7 +187,8 @@
     <TextView
         android:id="@+id/agenda_overflow"
         android:layout_width="match_parent"
-        android:layout_height="14dp"
+        android:layout_height="wrap_content"
+        android:minHeight="14dp"
         android:gravity="end|center_vertical"
         android:includeFontPadding="false"
         android:maxLines="1"

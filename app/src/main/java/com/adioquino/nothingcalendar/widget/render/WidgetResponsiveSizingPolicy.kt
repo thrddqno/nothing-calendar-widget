@@ -21,12 +21,13 @@ object WidgetResponsiveSizingPolicy {
             width >= 300 && height >= 300 && input.fontScale <= 1.15f -> WidgetLayoutMode.EXPANDED
             else -> WidgetLayoutMode.NORMAL
         }
-        val padding = if (mode == WidgetLayoutMode.COMPACT) 4 else 6
+        val horizontalPadding = if (mode == WidgetLayoutMode.COMPACT) 4 else 6
+        val verticalPadding = if (mode == WidgetLayoutMode.COMPACT) 4 else 6
         val metrics = metrics(input.kind, mode, input.fontScale)
         val monthRows = input.monthRowCount.coerceAtLeast(1)
         val monthRowHeight = when (input.kind) {
             WidgetKind.MONTH -> floor(
-                (height - padding * 2 - metrics.headerHeightDp - metrics.weekdayHeaderHeightDp)
+                (height - verticalPadding * 2 - metrics.headerHeightDp - metrics.weekdayHeaderHeightDp)
                     .coerceAtLeast(0) / monthRows.toDouble(),
             ).toInt().coerceAtLeast(1)
             WidgetKind.COMBINED -> metrics.calendarRowHeightDp
@@ -40,11 +41,11 @@ object WidgetResponsiveSizingPolicy {
         val agendaContentHeight = when (input.kind) {
             WidgetKind.MONTH -> 0
             WidgetKind.AGENDA, WidgetKind.TODAY_AGENDA -> {
-                height - padding * 2 - metrics.headerHeightDp
+                height - verticalPadding * 2 - metrics.headerHeightDp
             }
             WidgetKind.COMBINED -> {
-                height - padding * 2 - monthSectionHeight -
-                    metrics.dividerHeightDp - metrics.agendaHeaderHeightDp
+                height - verticalPadding * 2 - monthSectionHeight - metrics.sectionSpacingDp -
+                    metrics.agendaPanelVerticalInsetDp * 2 - metrics.agendaHeaderHeightDp
             }
         }.coerceAtLeast(0)
         val agendaCapacity = calculateAgendaCapacity(
@@ -56,19 +57,26 @@ object WidgetResponsiveSizingPolicy {
         )
         return WidgetLayoutSpec(
             mode = mode,
-            outerPaddingDp = padding,
+            horizontalPaddingDp = horizontalPadding,
+            verticalPaddingDp = verticalPadding,
             headerHeightDp = metrics.headerHeightDp,
             weekdayHeaderHeightDp = metrics.weekdayHeaderHeightDp,
             dateTextSizeSp = metrics.dateTextSizeSp,
             calendarRowHeightDp = monthRowHeight,
             monthSectionHeightDp = monthSectionHeight,
-            dividerHeightDp = metrics.dividerHeightDp,
+            sectionSpacingDp = metrics.sectionSpacingDp,
+            agendaPanelHorizontalInsetDp = metrics.agendaPanelHorizontalInsetDp,
+            agendaPanelVerticalInsetDp = metrics.agendaPanelVerticalInsetDp,
             agendaHeaderHeightDp = metrics.agendaHeaderHeightDp,
             agendaContentHeightDp = agendaContentHeight,
             agendaRowHeightDp = metrics.agendaRowHeightDp,
+            eventTitleTextSizeSp = metrics.eventTitleTextSizeSp,
+            eventMetaTextSizeSp = metrics.eventMetaTextSizeSp,
             overflowHeightDp = metrics.overflowHeightDp,
             agendaCapacity = agendaCapacity,
             maxAgendaRows = metrics.maxAgendaRows,
+            showWeekdayHeader = input.monthRowCount > 0,
+            showAgendaHeader = input.kind != WidgetKind.MONTH && metrics.agendaHeaderHeightDp > 0,
         )
     }
 
@@ -120,6 +128,7 @@ object WidgetResponsiveSizingPolicy {
                 agendaRowHeightDp = agendaRowHeight,
                 overflowHeightDp = scaled(14),
                 maxAgendaRows = 4,
+                eventTitleTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 10f else 11f,
             )
             WidgetKind.TODAY_AGENDA -> Metrics(
                 headerHeightDp = scaled(14),
@@ -128,6 +137,7 @@ object WidgetResponsiveSizingPolicy {
                 agendaRowHeightDp = agendaRowHeight,
                 overflowHeightDp = scaled(12),
                 maxAgendaRows = if (mode == WidgetLayoutMode.COMPACT || largeFont) 2 else 3,
+                eventTitleTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 10f else 11f,
             )
             WidgetKind.COMBINED -> Metrics(
                 headerHeightDp = scaled(20),
@@ -139,11 +149,14 @@ object WidgetResponsiveSizingPolicy {
                     largeFont -> 26
                     else -> 22
                 },
-                dividerHeightDp = scaled(7),
+                sectionSpacingDp = 6,
+                agendaPanelHorizontalInsetDp = 8,
+                agendaPanelVerticalInsetDp = 2,
                 agendaHeaderHeightDp = scaled(16),
                 agendaRowHeightDp = agendaRowHeight,
                 overflowHeightDp = scaled(14),
                 maxAgendaRows = 6,
+                eventTitleTextSizeSp = if (mode == WidgetLayoutMode.COMPACT) 10f else 11f,
             )
         }
     }
@@ -153,11 +166,15 @@ object WidgetResponsiveSizingPolicy {
         val weekdayHeaderHeightDp: Int = 0,
         val dateTextSizeSp: Float = 10f,
         val calendarRowHeightDp: Int = 0,
-        val dividerHeightDp: Int = 0,
+        val sectionSpacingDp: Int = 0,
+        val agendaPanelHorizontalInsetDp: Int = 0,
+        val agendaPanelVerticalInsetDp: Int = 0,
         val agendaHeaderHeightDp: Int = 0,
         val agendaRowHeightDp: Int = 0,
         val overflowHeightDp: Int = 0,
         val maxAgendaRows: Int = 0,
+        val eventTitleTextSizeSp: Float = 11f,
+        val eventMetaTextSizeSp: Float = 8f,
     )
 }
 
@@ -197,17 +214,24 @@ data class ResponsiveAgendaCapacity(
 
 data class WidgetLayoutSpec(
     val mode: WidgetLayoutMode,
-    val outerPaddingDp: Int,
+    val horizontalPaddingDp: Int,
+    val verticalPaddingDp: Int,
     val headerHeightDp: Int,
     val weekdayHeaderHeightDp: Int,
     val dateTextSizeSp: Float,
     val calendarRowHeightDp: Int,
     val monthSectionHeightDp: Int,
-    val dividerHeightDp: Int,
+    val sectionSpacingDp: Int,
+    val agendaPanelHorizontalInsetDp: Int,
+    val agendaPanelVerticalInsetDp: Int,
     val agendaHeaderHeightDp: Int,
     val agendaContentHeightDp: Int,
     val agendaRowHeightDp: Int,
+    val eventTitleTextSizeSp: Float,
+    val eventMetaTextSizeSp: Float,
     val overflowHeightDp: Int,
     val agendaCapacity: ResponsiveAgendaCapacity,
     val maxAgendaRows: Int,
+    val showWeekdayHeader: Boolean,
+    val showAgendaHeader: Boolean,
 )

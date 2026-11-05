@@ -78,6 +78,8 @@ class AgendaWidgetRenderingEngine(
                         palette.background,
                         palette.primaryText,
                         palette.secondaryText,
+                        eventTitleTextSizeSp = spec.eventTitleTextSizeSp,
+                        eventMetaTextSizeSp = spec.eventMetaTextSizeSp,
                     )
                 }
             }
